@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
                         DatagramPacket p = new DatagramPacket(message, message.length);
                         s.receive(p);
                         text = new String(message, 0, p.getLength());
+                        Log.d("Lulu", "Ip server: " + p.getAddress().getHostAddress());
                         Log.d("Lulu", "Received: " + text);
                         s.close();
                     } catch (Exception e) {
