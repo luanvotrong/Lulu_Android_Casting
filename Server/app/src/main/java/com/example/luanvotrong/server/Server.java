@@ -1,36 +1,26 @@
 package com.example.luanvotrong.server;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
-import android.widget.Button;
-import android.widget.TextView;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.net.DhcpInfo;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 
-import android.net.DhcpInfo;
 
 public class Server {
-    private class Broadcaster extends AsyncTask<Void, Void, Void> {
+    private int m_serverPort = 54018;
 
+    private class Broadcaster extends AsyncTask<Void, Void, Void> {
         private Exception exception;
-        private int m_serverPort = 54018;
 
         private InetAddress getBroadcastAddress() throws IOException {
             WifiManager wifi = (WifiManager) m_context.getSystemService(Context.WIFI_SERVICE);
@@ -65,6 +55,40 @@ public class Server {
             }
 
             return null;
+        }
+    }
+
+
+    public class ServerThread implements Runnable {
+        public void run()
+        {
+            try {
+                ServerSocket serverSocket = new ServerSocket(m_serverPort);
+                while(true)
+                {
+                    Socket client = serverSocket.accept();
+
+                    //ONCONNECTED
+
+                    try
+                    {
+                        BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+                        String line = null;
+
+                        while((line = in.readLine()) != null)
+                        {
+                            Log.d("Lulu", "Message received: " + line);
+                        }
+                    }
+                    catch(Exception e)
+                    {
+                        //ON-DISCONNECTED
+                    }
+                }
+            }
+            catch(Exception e)
+            {
+            }
         }
     }
 
