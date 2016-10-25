@@ -27,7 +27,7 @@ import java.net.InetAddress;
 import android.net.DhcpInfo;
 
 public class Server {
-    private class BroadcastManager extends AsyncTask<Void, Void, Void> {
+    private class Broadcaster extends AsyncTask<Void, Void, Void> {
 
         private Exception exception;
         private int m_serverPort = 54018;
@@ -69,7 +69,7 @@ public class Server {
     }
 
     private Boolean m_isConnected = false;
-    private BroadcastManager m_broadcastMgr = new BroadcastManager();
+    private Broadcaster m_broadcaster = new Broadcaster();
     private Context m_context = null;
 
     public void SetContext(Context context) {
@@ -81,6 +81,6 @@ public class Server {
     }
 
     public void FindConnect() {
-        m_broadcastMgr.execute();
+        m_broadcaster.execute();
     }
 }
