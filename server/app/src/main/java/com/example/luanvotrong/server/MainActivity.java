@@ -17,65 +17,14 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.io.File;
+import com.example.luanvotrong.server.Server;
+
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import android.net.DhcpInfo;
 
 public class MainActivity extends AppCompatActivity {
 
     private Button m_captureButton;
-
-    private class BroadcastManager extends AsyncTask<Void, Void, Void>
-    {
-        private Exception exception;
-        private int m_serverPort = 54018;
-
-        private InetAddress getBroadcastAddress() throws IOException
-        {
-            WifiManager wifi = (WifiManager)getSystemService(Context.WIFI_SERVICE);
-            DhcpInfo dhcp = wifi.getDhcpInfo();
-            if(dhcp == null)
-            {
-                Log.d("Lulu", "fuck no DHCP");
-            }
-
-            int broadcast = (dhcp.ipAddress & dhcp.netmask) | ~dhcp.netmask;
-            byte []quads = new byte[4];
-            for(int k=0; k<4; k++)
-            {
-                quads[k] = (byte)((broadcast >> k * 8) & 0xFF);
-            }
-
-            return InetAddress.getByAddress(quads);
-        }
-
-        protected Void doInBackground(Void... params)
-        {
-            String mess = "yeah";
-            try
-            {
-                DatagramSocket s = new DatagramSocket();
-                InetAddress local = getBroadcastAddress();
-
-                int msg_length = mess.length();
-                byte[] message = mess.getBytes();
-                DatagramPacket p = new DatagramPacket(message, msg_length, local, m_serverPort);
-
-                s.send(p);
-                Log.d("Lulu", "sent");
-            }
-            catch(Exception e)
-            {
-                Log.d("Lulu", e.toString());
-            }
-
-            return null;
-        }
-    }
+    private Server m_server;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +44,9 @@ public class MainActivity extends AppCompatActivity {
 
         final View screenView = (View) findViewById(android.R.id.content).getRootView();
 
+        m_server = new Server();
+        m_server.SetContext(this);
+
         m_captureButton = (Button) findViewById(R.id.capture);
         m_captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,7 +54,9 @@ public class MainActivity extends AppCompatActivity {
                 //screenView.setDrawingCacheEnabled(true);
                 //onCapture(screenView.getDrawingCache());
 
-                new BroadcastManager().execute();
+                if (!m_server.IsConnected()) {
+                    m_server.FindConnect();
+                }
             }
         });
 
