@@ -1,6 +1,8 @@
 package com.example.luanvotrong.client;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -10,7 +12,40 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+
 public class MainActivity extends AppCompatActivity {
+
+    private class BroadcastListener extends AsyncTask<Void, Void, Void> {
+        private int m_serverPort = 54018;
+
+        protected Void doInBackground(Void... params) {
+            String text = new String();
+            byte[] message = new byte[1500];
+
+            try {
+                DatagramSocket s = new DatagramSocket(m_serverPort);
+                s.setBroadcast(true);
+
+                while (text.length() <= 0) {
+                    try {
+                        DatagramPacket p = new DatagramPacket(message, message.length);
+                        s.receive(p);
+                        text = new String(message, 0, p.getLength());
+                        Log.d("Lulu", "Received: " + text);
+                        s.close();
+                    } catch (Exception e) {
+                        Log.d("Lulu", e.toString());
+                    }
+                }
+            } catch (Exception e) {
+                Log.d("Lulu", e.toString());
+            }
+
+            return null;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-       FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -28,9 +63,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-    // Example of a call to a native method
-    TextView tv = (TextView) findViewById(R.id.sample_text);
-    tv.setText(stringFromJNI());
+        new BroadcastListener().execute();
+
+        // Example of a call to a native method
+        TextView tv = (TextView) findViewById(R.id.sample_text);
+        tv.setText(stringFromJNI());
     }
 
     @Override
