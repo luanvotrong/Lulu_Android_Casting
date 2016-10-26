@@ -1,4 +1,4 @@
-package com.example.luanvotrong.server;
+package com.luanvotrong.server;
 
 import android.content.Context;
 import android.net.wifi.WifiManager;

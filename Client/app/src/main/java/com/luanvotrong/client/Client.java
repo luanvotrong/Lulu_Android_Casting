@@ -1,4 +1,4 @@
-package com.example.luanvotrong.client;
+package com.luanvotrong.client;
 
 import android.os.AsyncTask;
 import android.util.Log;
