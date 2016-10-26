@@ -2,14 +2,21 @@ package com.luanvotrong.server;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.net.DhcpInfo;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -25,7 +32,7 @@ public class Server {
 
     private CONNECTION_STATE m_stateConnection;
 
-    private int m_udpPort = 63676;
+    private int m_udpPort = 63678;
     private int m_tcpPort = 63677;
 
     private class Broadcaster extends AsyncTask<Void, Void, Void> {
@@ -69,6 +76,7 @@ public class Server {
 
     ServerSocket m_serverSocket = null;
     Socket m_socket = null;
+
     public class ServerThread implements Runnable {
         @Override
         public void run() {
@@ -79,16 +87,6 @@ public class Server {
 
                 //ONCONNECTED
                 setState(CONNECTION_STATE.CONNECTED);
-                try {
-                    BufferedReader in = new BufferedReader(new InputStreamReader(m_socket.getInputStream()));
-                    String line = null;
-
-                    while ((line = in.readLine()) != null) {
-                        Log.d("Lulu", "Message received: " + line);
-                    }
-                } catch (Exception e) {
-                    //ON-DISCONNECTED
-                }
             } catch (Exception e) {
             }
         }
@@ -123,14 +121,28 @@ public class Server {
         }
     }
 
-    public void disconnect()
+    public void sendCapture()
     {
+        Bitmap bm = m_context.getCapture();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bm.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        byte array[] = baos.toByteArray();
+
+        try {
+            OutputStream os = m_socket.getOutputStream();
+            DataOutputStream dos = new DataOutputStream(os);
+            dos.writeInt(array.length);
+            dos.write(array, 0, array.length);
+            Log.d("Lulu", "Sent bitmap!");
+        } catch (Exception e) {
+        }
+    }
+
+    public void disconnect() {
         try {
             m_socket.close();
             m_serverSocket.close();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
         }
     }
 

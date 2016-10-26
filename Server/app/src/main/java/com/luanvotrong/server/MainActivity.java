@@ -23,8 +23,10 @@ import java.io.FileOutputStream;
 
 public class MainActivity extends AppCompatActivity {
 
+    private Button m_connectButton;
     private Button m_captureButton;
     private Server m_server;
+    private View m_screenView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,21 +44,25 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        final View screenView = (View) findViewById(android.R.id.content).getRootView();
+        m_screenView = (View) findViewById(android.R.id.content).getRootView();
+        m_screenView.setDrawingCacheEnabled(true);
 
         m_server = new Server();
         m_server.init(this);
+
+        m_connectButton = (Button) findViewById(R.id.connect);
+        m_connectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                m_server.setState(Server.CONNECTION_STATE.CONNECTING);
+            }
+        });
 
         m_captureButton = (Button) findViewById(R.id.capture);
         m_captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //screenView.setDrawingCacheEnabled(true);
-                //onCapture(screenView.getDrawingCache());
-
-                if (!m_server.isConnected()) {
-                    m_server.setState(Server.CONNECTION_STATE.CONNECTING);
-                }
+                m_server.sendCapture();
             }
         });
 
@@ -66,13 +72,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onStop()
-    {
+    public void onStop() {
         m_server.disconnect();
         super.onStop();
     }
 
-    public void onCapture(Bitmap bm) {
+    public void onCapture() {
+        Bitmap bm = m_screenView.getDrawingCache();
+
         String path = Environment.getExternalStorageDirectory() + "/capture.png";
         Log.v("Lulu", "path: " + path);
 
@@ -94,6 +101,10 @@ public class MainActivity extends AppCompatActivity {
         long deltaTime = (end_time - begin_time) / 1000000;
 
         Log.v("Lulu", "deltatime: " + deltaTime);
+    }
+
+    public Bitmap getCapture() {
+        return m_screenView.getDrawingCache();
     }
 
     @Override
