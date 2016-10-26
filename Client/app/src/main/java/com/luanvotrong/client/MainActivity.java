@@ -34,7 +34,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         m_client = new Client();
-        m_client.StartListening();
+        m_client.init();
+        m_client.setState(Client.CONNECTION_STATE.LISTENING);
 
         // Example of a call to a native method
         TextView tv = (TextView) findViewById(R.id.sample_text);

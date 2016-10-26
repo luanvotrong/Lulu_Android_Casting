@@ -1,5 +1,6 @@
 package com.luanvotrong.server;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
@@ -17,7 +18,15 @@ import java.net.Socket;
 
 
 public class Server {
-    private int m_serverPort = 54018;
+    public enum CONNECTION_STATE
+    {
+        CONNECTING,
+        CONNECTED
+    }
+    private CONNECTION_STATE m_stateConnection;
+
+    private int m_udpPort = 63676;
+    private int m_tcpPort = 63677;
 
     private class Broadcaster extends AsyncTask<Void, Void, Void> {
         private Exception exception;
@@ -46,7 +55,7 @@ public class Server {
 
                 int msg_length = mess.length();
                 byte[] message = mess.getBytes();
-                DatagramPacket p = new DatagramPacket(message, msg_length, local, m_serverPort);
+                DatagramPacket p = new DatagramPacket(message, msg_length, local, m_udpPort);
 
                 s.send(p);
                 Log.d("Lulu", "sent");
@@ -60,15 +69,17 @@ public class Server {
 
 
     public class ServerThread implements Runnable {
+        @Override
         public void run()
         {
             try {
-                ServerSocket serverSocket = new ServerSocket(m_serverPort);
+                ServerSocket serverSocket = new ServerSocket(m_tcpPort);
                 while(true)
                 {
                     Socket client = serverSocket.accept();
 
                     //ONCONNECTED
+                    Log.d("Lulu", "Connected!");
 
                     try
                     {
@@ -92,18 +103,37 @@ public class Server {
         }
     }
 
-    private Boolean m_isConnected = false;
     private Context m_context = null;
+    private Broadcaster m_broadReceiver;
+    private Thread m_serverThread;
 
-    public void SetContext(Context context) {
+    public void init(Context context)
+    {
+        m_broadReceiver = null;
+        m_serverThread = null;
         m_context = context;
     }
 
-    public Boolean IsConnected() {
-        return m_isConnected;
+    public void setState (CONNECTION_STATE state)
+    {
+        m_stateConnection = state;
+        switch(m_stateConnection)
+        {
+            case CONNECTING:
+                m_broadReceiver = new Broadcaster();
+                m_broadReceiver.execute();
+
+                m_serverThread = new Thread(new ServerThread());
+                m_serverThread.start();
+                break;
+            case CONNECTED:
+                m_broadReceiver.cancel(true);
+                m_broadReceiver = null;
+                break;
+        }
     }
 
-    public void FindConnect() {
-        new Broadcaster().execute();
+    public Boolean isConnected() {
+        return m_stateConnection == CONNECTION_STATE.CONNECTED;
     }
 }

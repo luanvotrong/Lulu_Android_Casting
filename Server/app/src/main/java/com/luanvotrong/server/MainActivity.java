@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         final View screenView = (View) findViewById(android.R.id.content).getRootView();
 
         m_server = new Server();
-        m_server.SetContext(this);
+        m_server.init(this);
 
         m_captureButton = (Button) findViewById(R.id.capture);
         m_captureButton.setOnClickListener(new View.OnClickListener() {
@@ -54,8 +54,8 @@ public class MainActivity extends AppCompatActivity {
                 //screenView.setDrawingCacheEnabled(true);
                 //onCapture(screenView.getDrawingCache());
 
-                if (!m_server.IsConnected()) {
-                    m_server.FindConnect();
+                if (!m_server.isConnected()) {
+                    m_server.setState(Server.CONNECTION_STATE.CONNECTING);
                 }
             }
         });
