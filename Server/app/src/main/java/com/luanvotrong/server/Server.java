@@ -93,7 +93,6 @@ public class Server {
     }
 
     private Boolean m_isConnected = false;
-    private Broadcaster m_broadcaster = new Broadcaster();
     private Context m_context = null;
 
     public void SetContext(Context context) {
@@ -105,6 +104,6 @@ public class Server {
     }
 
     public void FindConnect() {
-        m_broadcaster.execute();
+        new Broadcaster().execute();
     }
 }
