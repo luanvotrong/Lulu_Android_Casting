@@ -60,6 +60,7 @@ public class Client {
         public void run() {
             try {
                 Socket socket = new Socket(m_serverAddress, m_tcpPort);
+                setState(CONNECTION_STATE.CONNECTED);
             } catch (Exception e) {
                 Log.d("Lulu", e.toString());
             }

@@ -93,11 +93,11 @@ public class Server {
         }
     }
 
-    private Context m_context = null;
+    private MainActivity m_context = null;
     private Broadcaster m_broadReceiver;
     private Thread m_serverThread;
 
-    public void init(Context context) {
+    public void init(MainActivity context) {
         m_broadReceiver = null;
         m_serverThread = null;
         m_context = context;
