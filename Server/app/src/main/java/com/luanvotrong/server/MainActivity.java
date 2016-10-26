@@ -65,6 +65,13 @@ public class MainActivity extends AppCompatActivity {
         tv.setText(stringFromJNI());
     }
 
+    @Override
+    public void onStop()
+    {
+        m_server.disconnect();
+        super.onStop();
+    }
+
     public void onCapture(Bitmap bm) {
         String path = Environment.getExternalStorageDirectory() + "/capture.png";
         Log.v("Lulu", "path: " + path);

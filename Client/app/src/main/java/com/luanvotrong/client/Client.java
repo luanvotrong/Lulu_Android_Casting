@@ -55,11 +55,12 @@ public class Client {
         }
     }
 
+    Socket m_socket = null;
     private class ClientThread implements Runnable {
         @Override
         public void run() {
             try {
-                Socket socket = new Socket(m_serverAddress, m_tcpPort);
+                m_socket = new Socket(m_serverAddress, m_tcpPort);
                 setState(CONNECTION_STATE.CONNECTED);
             } catch (Exception e) {
                 Log.d("Lulu", e.toString());
@@ -86,6 +87,16 @@ public class Client {
             case CONNECTED:
                 Log.d("Lulu", "Connected");
                 break;
+        }
+    }
+
+    public void disconnect()
+    {
+        try {
+            m_socket.close();
+        }
+        catch (Exception e)
+        {
         }
     }
 }

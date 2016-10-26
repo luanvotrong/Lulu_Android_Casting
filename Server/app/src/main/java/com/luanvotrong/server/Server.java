@@ -67,19 +67,20 @@ public class Server {
         }
     }
 
-
+    ServerSocket m_serverSocket = null;
+    Socket m_socket = null;
     public class ServerThread implements Runnable {
         @Override
         public void run() {
             try {
                 Log.d("Lulu", "Binded socket!");
-                ServerSocket serverSocket = new ServerSocket(m_tcpPort);
-                Socket client = serverSocket.accept();
+                m_serverSocket = new ServerSocket(m_tcpPort);
+                m_socket = m_serverSocket.accept();
 
                 //ONCONNECTED
                 setState(CONNECTION_STATE.CONNECTED);
                 try {
-                    BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+                    BufferedReader in = new BufferedReader(new InputStreamReader(m_socket.getInputStream()));
                     String line = null;
 
                     while ((line = in.readLine()) != null) {
@@ -119,6 +120,17 @@ public class Server {
                 m_broadReceiver.cancel(true);
                 m_broadReceiver = null;
                 break;
+        }
+    }
+
+    public void disconnect()
+    {
+        try {
+            m_socket.close();
+            m_serverSocket.close();
+        }
+        catch (Exception e)
+        {
         }
     }
 
