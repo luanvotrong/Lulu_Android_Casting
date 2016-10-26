@@ -18,11 +18,11 @@ import java.net.Socket;
 
 
 public class Server {
-    public enum CONNECTION_STATE
-    {
+    public enum CONNECTION_STATE {
         CONNECTING,
         CONNECTED
     }
+
     private CONNECTION_STATE m_stateConnection;
 
     private int m_udpPort = 63676;
@@ -70,35 +70,25 @@ public class Server {
 
     public class ServerThread implements Runnable {
         @Override
-        public void run()
-        {
+        public void run() {
             try {
+                Log.d("Lulu", "Binded socket!");
                 ServerSocket serverSocket = new ServerSocket(m_tcpPort);
-                while(true)
-                {
-                    Socket client = serverSocket.accept();
+                Socket client = serverSocket.accept();
 
-                    //ONCONNECTED
-                    Log.d("Lulu", "Connected!");
+                //ONCONNECTED
+                setState(CONNECTION_STATE.CONNECTED);
+                try {
+                    BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+                    String line = null;
 
-                    try
-                    {
-                        BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-                        String line = null;
-
-                        while((line = in.readLine()) != null)
-                        {
-                            Log.d("Lulu", "Message received: " + line);
-                        }
+                    while ((line = in.readLine()) != null) {
+                        Log.d("Lulu", "Message received: " + line);
                     }
-                    catch(Exception e)
-                    {
-                        //ON-DISCONNECTED
-                    }
+                } catch (Exception e) {
+                    //ON-DISCONNECTED
                 }
-            }
-            catch(Exception e)
-            {
+            } catch (Exception e) {
             }
         }
     }
@@ -107,19 +97,17 @@ public class Server {
     private Broadcaster m_broadReceiver;
     private Thread m_serverThread;
 
-    public void init(Context context)
-    {
+    public void init(Context context) {
         m_broadReceiver = null;
         m_serverThread = null;
         m_context = context;
     }
 
-    public void setState (CONNECTION_STATE state)
-    {
+    public void setState(CONNECTION_STATE state) {
         m_stateConnection = state;
-        switch(m_stateConnection)
-        {
+        switch (m_stateConnection) {
             case CONNECTING:
+                Log.d("Lulu", "Connecting!");
                 m_broadReceiver = new Broadcaster();
                 m_broadReceiver.execute();
 
@@ -127,6 +115,7 @@ public class Server {
                 m_serverThread.start();
                 break;
             case CONNECTED:
+                Log.d("Lulu", "Connected!");
                 m_broadReceiver.cancel(true);
                 m_broadReceiver = null;
                 break;
