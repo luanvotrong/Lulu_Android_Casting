@@ -88,7 +88,7 @@ public class Client {
                         dis.readFully(data);
                     }
                     //saveData(BitmapFactory.decodeByteArray(data, 0, len));
-                    //m_context.onDraw(BitmapFactory.decodeByteArray(data, 0, len));
+                    m_context.onDraw(BitmapFactory.decodeByteArray(data, 0, len));
                 } catch (Exception e) {
 
                 }

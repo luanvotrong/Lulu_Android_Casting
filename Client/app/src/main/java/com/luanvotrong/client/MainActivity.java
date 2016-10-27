@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.*;
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.MotionEvent;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Button;
@@ -15,8 +16,6 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.luanvotrong.client.Client;
-
 import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
@@ -24,16 +23,21 @@ public class MainActivity extends AppCompatActivity {
     private Button m_listeningButton;
     private LinearLayout m_drawingLayout;
     private DrawingView m_drawingView;
-    private Bitmap m_bm;
 
     class DrawingView extends View {
-        private Bitmap mBitmap;
-        private Canvas mCanvas;
+        private Bitmap m_bm;
 
         public DrawingView(Context context) {
             super(context);
-            mCanvas = new Canvas();
             this.setBackgroundColor(Color.BLACK);
+        }
+
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+            setVisibility(LinearLayout.INVISIBLE);
+
+            invalidate();
+            return true;
         }
 
         @Override
@@ -58,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         m_drawingView = new DrawingView(this);
         m_drawingLayout = (LinearLayout) findViewById(R.id.drawingView);
         m_drawingLayout.addView(m_drawingView);
-        m_drawingLayout.setVisibility(LinearLayout.GONE);
+        m_drawingLayout.setVisibility(LinearLayout.INVISIBLE);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -75,8 +79,8 @@ public class MainActivity extends AppCompatActivity {
         m_listeningButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
-                //m_client.setState(Client.CONNECTION_STATE.LISTENING);
-                onDraw();
+                m_client.setState(Client.CONNECTION_STATE.LISTENING);
+                //onDraw();
             }
         });
 
@@ -129,6 +133,12 @@ public class MainActivity extends AppCompatActivity {
             Bitmap bm = BitmapFactory.decodeFile(path);
             m_drawingView.draw(bm);
         }
+    }
+
+    public void onDraw(Bitmap bm)
+    {
+        m_drawingLayout.setVisibility(LinearLayout.VISIBLE);
+        m_drawingView.draw(bm);
     }
 
     // Used to load the 'native-lib' library on application startup.
