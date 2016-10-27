@@ -121,8 +121,8 @@ public class Server {
         }
     }
 
-    public void sendCapture()
-    {
+    public void sendCapture() {
+
         Bitmap bm = m_context.getCapture();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bm.compress(Bitmap.CompressFormat.PNG, 100, baos);

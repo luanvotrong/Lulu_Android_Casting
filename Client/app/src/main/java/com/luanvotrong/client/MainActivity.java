@@ -129,16 +129,16 @@ public class MainActivity extends AppCompatActivity {
         String path = Environment.getExternalStorageDirectory() + "/capture.png";
         File pic = new File(path);
         if(pic.exists()) {
-            m_drawingLayout.setVisibility(LinearLayout.VISIBLE);
             Bitmap bm = BitmapFactory.decodeFile(path);
             m_drawingView.draw(bm);
+            m_drawingLayout.setVisibility(LinearLayout.VISIBLE);
         }
     }
 
     public void onDraw(Bitmap bm)
     {
-        m_drawingLayout.setVisibility(LinearLayout.VISIBLE);
         m_drawingView.draw(bm);
+        m_drawingLayout.setVisibility(LinearLayout.VISIBLE);
     }
 
     // Used to load the 'native-lib' library on application startup.
