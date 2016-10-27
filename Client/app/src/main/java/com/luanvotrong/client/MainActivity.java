@@ -1,9 +1,12 @@
 package com.luanvotrong.client;
 
-import android.os.AsyncTask;
+import android.content.Context;
+import android.graphics.*;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Environment;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Button;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -14,8 +17,36 @@ import android.view.MenuItem;
 
 import com.luanvotrong.client.Client;
 
+import java.io.File;
+
 public class MainActivity extends AppCompatActivity {
     private Client m_client = null;
+    private Button m_listeningButton;
+    private LinearLayout m_drawingLayout;
+    private DrawingView m_drawingView;
+    private Bitmap m_bm;
+
+    class DrawingView extends View {
+        private Bitmap mBitmap;
+        private Canvas mCanvas;
+
+        public DrawingView(Context context) {
+            super(context);
+            mCanvas = new Canvas();
+            this.setBackgroundColor(Color.BLACK);
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            super.onDraw(canvas);
+
+            canvas.drawBitmap(m_bm, 0, 0, null);
+        }
+
+        public void draw(Bitmap bm) {
+            m_bm = bm;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +54,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        m_drawingView = new DrawingView(this);
+        m_drawingLayout = (LinearLayout) findViewById(R.id.drawingView);
+        m_drawingLayout.addView(m_drawingView);
+        m_drawingLayout.setVisibility(LinearLayout.GONE);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -34,8 +70,15 @@ public class MainActivity extends AppCompatActivity {
         });
 
         m_client = new Client();
-        m_client.init();
-        m_client.setState(Client.CONNECTION_STATE.LISTENING);
+        m_client.init(this);
+        m_listeningButton = (Button) findViewById(R.id.listen);
+        m_listeningButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                //m_client.setState(Client.CONNECTION_STATE.LISTENING);
+                onDraw();
+            }
+        });
 
         // Example of a call to a native method
         TextView tv = (TextView) findViewById(R.id.sample_text);
@@ -76,6 +119,17 @@ public class MainActivity extends AppCompatActivity {
      * which is packaged with this application.
      */
     public native String stringFromJNI();
+
+    public void onDraw()
+    {
+        String path = Environment.getExternalStorageDirectory() + "/capture.png";
+        File pic = new File(path);
+        if(pic.exists()) {
+            m_drawingLayout.setVisibility(LinearLayout.VISIBLE);
+            Bitmap bm = BitmapFactory.decodeFile(path);
+            m_drawingView.draw(bm);
+        }
+    }
 
     // Used to load the 'native-lib' library on application startup.
     static {

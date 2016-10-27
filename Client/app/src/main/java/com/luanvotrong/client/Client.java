@@ -27,10 +27,11 @@ public class Client {
     private int m_udpPort = 63678;
     private int m_tcpPort = 63677;
     private InetAddress m_serverAddress = null;
+    private MainActivity m_context;
 
-    private class UDPBroadcastListener extends AsyncTask<Void, Void, Void> {
-
-        protected Void doInBackground(Void... params) {
+    private class UDPBroadcastListener implements Runnable {
+        @Override
+        public void run() {
             byte[] message = new byte[1500];
 
             try {
@@ -56,12 +57,11 @@ public class Client {
             } catch (Exception e) {
                 Log.d("Lulu", e.toString());
             }
-
-            return null;
         }
     }
 
     Socket m_socket = null;
+
     private class ClientThread implements Runnable {
         @Override
         public void run() {
@@ -74,36 +74,29 @@ public class Client {
         }
     }
 
-    private class ClientReceiveThread implements Runnable
-    {
+    private class ClientReceiveThread implements Runnable {
         @Override
-        public void run()
-        {
-            while(!Thread.currentThread().isInterrupted())
-            {
-                try
-                {
+        public void run() {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
                     InputStream in = m_socket.getInputStream();
                     DataInputStream dis = new DataInputStream(in);
 
                     int len = dis.readInt();
                     byte[] data = new byte[len];
-                    if(len > 0)
-                    {
+                    if (len > 0) {
                         dis.readFully(data);
                     }
-                    saveData(BitmapFactory.decodeByteArray(data, 0, len));
-                }
-                catch (Exception e)
-                {
+                    //saveData(BitmapFactory.decodeByteArray(data, 0, len));
+                    //m_context.onDraw(BitmapFactory.decodeByteArray(data, 0, len));
+                } catch (Exception e) {
 
                 }
             }
         }
     }
 
-    public void saveData(Bitmap bm)
-    {
+    public void saveData(Bitmap bm) {
         String path = Environment.getExternalStorageDirectory() + "/capture.png";
         Log.v("Lulu", "path: " + path);
 
@@ -127,7 +120,8 @@ public class Client {
         Log.v("Lulu", "deltatime: " + deltaTime);
     }
 
-    public void init() {
+    public void init(MainActivity context) {
+        m_context = context;
         m_stateConnection = CONNECTION_STATE.LISTENING;
     }
 
@@ -137,7 +131,8 @@ public class Client {
             case LISTENING:
                 Log.d("Lulu", "Listening");
                 m_serverAddress = null;
-                new UDPBroadcastListener().execute();
+                //new UDPBroadcastListener().execute();
+                new Thread(new UDPBroadcastListener()).start();
                 break;
             case REQUESTING:
                 Log.d("Lulu", "Requesting");
@@ -150,13 +145,10 @@ public class Client {
         }
     }
 
-    public void disconnect()
-    {
+    public void disconnect() {
         try {
             m_socket.close();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
         }
     }
 }
