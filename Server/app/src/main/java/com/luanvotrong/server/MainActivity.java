@@ -19,14 +19,15 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.luanvotrong.server.Server;
-
 import java.io.FileOutputStream;
+
+import com.luanvotrong.recorder.Recorder;
 
 public class MainActivity extends AppCompatActivity {
 
     private Button m_connectButton;
-    private Button m_captureButton;
+    private Button m_castButton;
+    private Recorder m_recorder;
     private Server m_server;
     private View m_screenView;
 
@@ -49,8 +50,13 @@ public class MainActivity extends AppCompatActivity {
         m_screenView = (View) findViewById(android.R.id.content).getRootView();
         m_screenView.setDrawingCacheEnabled(true);
 
+        m_recorder = new Recorder();
+        m_recorder.setView(m_screenView);
+        new Thread(m_recorder).start();
+
         m_server = new Server();
         m_server.init(this);
+        m_server.setRecorder(m_recorder);
 
         m_connectButton = (Button) findViewById(R.id.connect);
         m_connectButton.setOnClickListener(new View.OnClickListener() {
@@ -60,8 +66,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        m_captureButton = (Button) findViewById(R.id.capture);
-        m_captureButton.setOnClickListener(new View.OnClickListener() {
+        m_castButton = (Button) findViewById(R.id.cast);
+        m_castButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 m_server.sendCapture();
@@ -79,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
     }
 
+    /*
     public void onCapture() {
         Bitmap bm = m_screenView.getDrawingCache();
 
@@ -108,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
     public Bitmap getCapture() {
         return m_screenView.getDrawingCache();
     }
+    */
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

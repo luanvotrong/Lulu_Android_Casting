@@ -43,10 +43,10 @@
         android:layout_gravity="bottom|center_horizontal" />
 
     <Button
-        android:text="capture"
+        android:text="cast"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/capture"
+        android:id="@+id/cast"
         app:layout_anchor="@+id/include"
         app:layout_anchorGravity="center_vertical|center_horizontal"
         android:layout_gravity="center_vertical|center_horizontal" />

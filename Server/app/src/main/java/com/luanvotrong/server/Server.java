@@ -8,6 +8,8 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.net.DhcpInfo;
 
+import com.luanvotrong.recorder.Recorder;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -22,6 +24,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.TimeUnit;
 
 
 public class Server {
@@ -93,6 +96,7 @@ public class Server {
     }
 
     private MainActivity m_context = null;
+    private Recorder m_recorder;
     private Broadcaster m_broadReceiver;
     private Thread m_serverThread;
 
@@ -100,6 +104,11 @@ public class Server {
         m_broadReceiver = null;
         m_serverThread = null;
         m_context = context;
+    }
+
+    public void setRecorder(Recorder recorder)
+    {
+        m_recorder = recorder;
     }
 
     public void setState(CONNECTION_STATE state) {
@@ -122,8 +131,7 @@ public class Server {
     }
 
     public void sendCapture() {
-
-        Bitmap bm = m_context.getCapture();
+        Bitmap bm = m_recorder.getFrame();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bm.compress(Bitmap.CompressFormat.PNG, 100, baos);
         byte array[] = baos.toByteArray();
