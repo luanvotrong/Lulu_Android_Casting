@@ -52,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
 
         m_recorder = new Recorder();
         m_recorder.setView(m_screenView);
-        new Thread(m_recorder).start();
 
         m_server = new Server();
         m_server.init(this);
@@ -70,7 +69,8 @@ public class MainActivity extends AppCompatActivity {
         m_castButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                m_server.sendCapture();
+                new Thread(m_recorder).start();
+                m_server.startCasting();
             }
         });
 

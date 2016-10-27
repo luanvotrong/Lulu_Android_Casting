@@ -130,6 +130,30 @@ public class Server {
         }
     }
 
+    private class Sender implements Runnable
+    {
+        @Override
+        public void run()
+        {
+            while(!Thread.currentThread().isInterrupted())
+            {
+                while(m_recorder.numberOfFrame() > 0)
+                {
+                    sendCapture();
+                }
+            }
+        }
+    }
+
+
+    private Thread m_senderThread;
+    public void startCasting() {
+        m_senderThread = new Thread(
+                new Sender()
+        );
+        m_senderThread.start();
+    }
+
     public void sendCapture() {
         Bitmap bm = m_recorder.getFrame();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

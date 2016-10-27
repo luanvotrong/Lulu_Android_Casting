@@ -53,6 +53,11 @@ public class Recorder implements Runnable {
         }
     }
 
+    public int numberOfFrame()
+    {
+        return m_frameQueue.size();
+    }
+
     public Bitmap getFrame()
     {
         return m_frameQueue.poll();
