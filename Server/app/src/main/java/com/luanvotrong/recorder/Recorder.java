@@ -22,7 +22,7 @@ public class Recorder implements Runnable {
     public Recorder() {
         m_context = null;
         m_lastTime = System.currentTimeMillis();
-        m_timer = 0;
+        m_timer = FPS_INTERVAL;
         m_frameQueue = new LinkedList();
     }
 
@@ -36,21 +36,23 @@ public class Recorder implements Runnable {
         while(!Thread.currentThread().isInterrupted())
         {
             long now = System.currentTimeMillis();
-            float deltaTime = now - m_lastTime;
+            long deltaTime = now - m_lastTime;
             update(deltaTime);
             m_lastTime = now;
         }
     }
 
-    private void update(float deltaTime)
+    private void update(long deltaTime)
     {
         m_timer -= deltaTime;
         if(m_timer <= 0)
         {
             Log.d("Lulu", "Recorded");
-            m_frameQueue.add(m_context.getDrawingCache());
+            Bitmap original = m_context.getDrawingCache();
+            m_frameQueue.add(Bitmap.createScaledBitmap(original, original.getWidth() / 5, original.getHeight() / 5, true));
             m_timer += FPS_INTERVAL;
         }
+        Log.d("Lulu", "timer: " + m_timer + "deltatime " + deltaTime);
     }
 
     public int numberOfFrame()

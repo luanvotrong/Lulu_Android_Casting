@@ -156,17 +156,19 @@ public class Server {
 
     public void sendCapture() {
         Bitmap bm = m_recorder.getFrame();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bm.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        byte array[] = baos.toByteArray();
+        if(bm != null) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bm.compress(Bitmap.CompressFormat.PNG, 100, baos);
+            byte array[] = baos.toByteArray();
 
-        try {
-            OutputStream os = m_socket.getOutputStream();
-            DataOutputStream dos = new DataOutputStream(os);
-            dos.writeInt(array.length);
-            dos.write(array, 0, array.length);
-            Log.d("Lulu", "Sent bitmap!");
-        } catch (Exception e) {
+            try {
+                OutputStream os = m_socket.getOutputStream();
+                DataOutputStream dos = new DataOutputStream(os);
+                dos.writeInt(array.length);
+                dos.write(array, 0, array.length);
+                Log.d("Lulu", "Sent bitmap!");
+            } catch (Exception e) {
+            }
         }
     }
 

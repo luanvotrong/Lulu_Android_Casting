@@ -96,6 +96,7 @@ public class Client {
         }
     }
 
+    /*
     public void saveData(Bitmap bm) {
         String path = Environment.getExternalStorageDirectory() + "/capture.png";
         Log.v("Lulu", "path: " + path);
@@ -119,6 +120,7 @@ public class Client {
 
         Log.v("Lulu", "deltatime: " + deltaTime);
     }
+    */
 
     public void init(MainActivity context) {
         m_context = context;

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.*;
 import android.os.Bundle;
 import android.os.Environment;
-import android.view.MotionEvent;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Button;
@@ -18,39 +17,13 @@ import android.view.MenuItem;
 
 import java.io.File;
 
+import com.luanvotrong.Renderer.*;
+
 public class MainActivity extends AppCompatActivity {
     private Client m_client = null;
     private Button m_listeningButton;
     private LinearLayout m_drawingLayout;
     private DrawingView m_drawingView;
-
-    class DrawingView extends View {
-        private Bitmap m_bm;
-
-        public DrawingView(Context context) {
-            super(context);
-            this.setBackgroundColor(Color.BLACK);
-        }
-
-        @Override
-        public boolean onTouchEvent(MotionEvent event) {
-            setVisibility(LinearLayout.INVISIBLE);
-
-            invalidate();
-            return true;
-        }
-
-        @Override
-        protected void onDraw(Canvas canvas) {
-            super.onDraw(canvas);
-
-            canvas.drawBitmap(m_bm, 0, 0, null);
-        }
-
-        public void draw(Bitmap bm) {
-            m_bm = bm;
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         m_drawingView = new DrawingView(this);
+        m_drawingView.init();
         m_drawingLayout = (LinearLayout) findViewById(R.id.drawingView);
         m_drawingLayout.addView(m_drawingView);
         m_drawingLayout.setVisibility(LinearLayout.INVISIBLE);
@@ -80,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view){
                 m_client.setState(Client.CONNECTION_STATE.LISTENING);
+                m_drawingLayout.setVisibility(LinearLayout.VISIBLE);
                 //onDraw();
             }
         });
@@ -124,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public native String stringFromJNI();
 
+    /*
     public void onDraw()
     {
         String path = Environment.getExternalStorageDirectory() + "/capture.png";
@@ -134,11 +110,11 @@ public class MainActivity extends AppCompatActivity {
             m_drawingLayout.setVisibility(LinearLayout.VISIBLE);
         }
     }
+    */
 
     public void onDraw(Bitmap bm)
     {
-        m_drawingView.draw(bm);
-        m_drawingLayout.setVisibility(LinearLayout.VISIBLE);
+        m_drawingView.addFrame(bm);
     }
 
     // Used to load the 'native-lib' library on application startup.
