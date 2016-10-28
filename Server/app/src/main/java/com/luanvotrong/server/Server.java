@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.util.Log;
 import android.net.DhcpInfo;
 
@@ -14,6 +15,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -106,8 +108,7 @@ public class Server {
         m_context = context;
     }
 
-    public void setRecorder(Recorder recorder)
-    {
+    public void setRecorder(Recorder recorder) {
         m_recorder = recorder;
     }
 
@@ -130,23 +131,17 @@ public class Server {
         }
     }
 
-    private class Sender implements Runnable
-    {
+    private class Sender implements Runnable {
         @Override
-        public void run()
-        {
-            while(!Thread.currentThread().isInterrupted())
-            {
-                while(m_recorder.getFrameQueue().size() > 0)
-                {
-                    sendCapture();
-                }
+        public void run() {
+            while (!Thread.currentThread().isInterrupted()) {
+                sendCapture();
             }
         }
     }
 
-
     private Thread m_senderThread;
+
     public void startCasting() {
         m_senderThread = new Thread(
                 new Sender()
@@ -155,8 +150,8 @@ public class Server {
     }
 
     public void sendCapture() {
-        Bitmap bm = (Bitmap)m_recorder.getFrameQueue().poll();
-        if(bm != null) {
+        Bitmap bm = (Bitmap) m_recorder.getFrameQueue().poll();
+        if (bm != null) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bm.compress(Bitmap.CompressFormat.PNG, 80, baos);
             byte array[] = baos.toByteArray();
@@ -178,9 +173,5 @@ public class Server {
             m_serverSocket.close();
         } catch (Exception e) {
         }
-    }
-
-    public Boolean isConnected() {
-        return m_stateConnection == CONNECTION_STATE.CONNECTED;
     }
 }

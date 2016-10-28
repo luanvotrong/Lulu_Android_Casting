@@ -38,7 +38,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         m_screenView = (View) findViewById(android.R.id.content).getRootView();
-        m_screenView.setDrawingCacheEnabled(true);
 
         m_recorder = new Recorder();
         m_recorder.setView(m_screenView);
