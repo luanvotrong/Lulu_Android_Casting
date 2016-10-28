@@ -87,13 +87,36 @@ public class Client {
                     if (len > 0) {
                         dis.readFully(data);
                     }
-                    //saveData(BitmapFactory.decodeByteArray(data, 0, len));
-                    m_context.onDraw(BitmapFactory.decodeByteArray(data, 0, len));
+                    saveData(BitmapFactory.decodeByteArray(data, 0, len));
+                    //m_context.onDraw(BitmapFactory.decodeByteArray(data, 0, len));
                 } catch (Exception e) {
 
                 }
             }
         }
+    }
+
+    private int frameCount = 0;
+    public void saveData(Bitmap bm) {
+        frameCount++;
+        long begin_time = System.nanoTime();
+        java.io.File image = new java.io.File(Environment.getExternalStorageDirectory() + "/capture" + frameCount + ".png");
+        if (image.exists()) {
+            image.delete();
+        }
+
+        try {
+            FileOutputStream out = new FileOutputStream(image);
+            bm.compress(Bitmap.CompressFormat.PNG, 100, out);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        long end_time = System.nanoTime();
+        long deltaTime = (end_time - begin_time) / 1000000;
+
+        Log.v("Lulu", "deltatime: " + deltaTime);
     }
 
     public void init(MainActivity context) {
