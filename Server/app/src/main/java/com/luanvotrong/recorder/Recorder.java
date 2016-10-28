@@ -1,14 +1,10 @@
 package com.luanvotrong.recorder;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 
 import com.luanvotrong.Utiliies.FrameQueue;
-
-import java.io.FileOutputStream;
 
 
 public class Recorder implements Runnable {
@@ -54,28 +50,9 @@ public class Recorder implements Runnable {
         m_context.buildDrawingCache();
         Bitmap bm = m_context.getDrawingCache();
         bm =  Bitmap.createScaledBitmap(bm, bm.getWidth() / 3, bm.getHeight() / 3, true);
-        save(bm);
         m_context.setDrawingCacheEnabled(false);
 
         return bm;
-    }
-
-    private int frame = 0;
-    public void save(Bitmap bm) {
-        frame++;
-        java.io.File image = new java.io.File(Environment.getExternalStorageDirectory() + "/capture" + frame + ".png");
-        if (image.exists()) {
-            image.delete();
-        }
-
-        try {
-            FileOutputStream out = new FileOutputStream(image);
-            bm.compress(Bitmap.CompressFormat.PNG, 100, out);
-            out.flush();
-            out.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     private void addFrame(Bitmap bm) {

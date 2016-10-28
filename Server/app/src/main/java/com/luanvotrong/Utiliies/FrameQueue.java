@@ -14,11 +14,23 @@ public class FrameQueue<T> {
     }
 
     public T poll() {
-        return list.pollFirst();
+        try {
+            return list.pollFirst();
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
     }
 
     public T peek() {
-        return list.peekFirst();
+        try {
+            return list.peekFirst();
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
     }
 
     public int size() {

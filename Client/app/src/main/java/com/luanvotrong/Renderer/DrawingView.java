@@ -10,10 +10,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 
-import java.io.FileOutputStream;
-import java.util.LinkedList;
-import java.util.Queue;
-
 import com.luanvotrong.Utiliies.FrameQueue;
 
 public class DrawingView extends View {
@@ -43,6 +39,7 @@ public class DrawingView extends View {
             {
                 m_frameQueue.poll();
                 m_timer += FPS_INTERVAL;
+                postInvalidate();
             }
         }
     }
@@ -73,9 +70,12 @@ public class DrawingView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        Log.d("Lulu", "onDraw");
         Bitmap bm = m_frameQueue.peek();
         if(bm != null) {
+            canvas.drawColor(Color.BLACK);
             canvas.drawBitmap(bm, 0, 0, null);
+            Log.d("Lulu", "onDraw frame");
         }
     }
 

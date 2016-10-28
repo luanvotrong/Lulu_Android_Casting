@@ -11,22 +11,15 @@ import android.net.DhcpInfo;
 
 import com.luanvotrong.recorder.Recorder;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.TimeUnit;
 
 
 public class Server {
@@ -161,6 +154,7 @@ public class Server {
                 DataOutputStream dos = new DataOutputStream(os);
                 dos.writeInt(array.length);
                 dos.write(array, 0, array.length);
+
                 Log.d("Lulu", "Sent bitmap! " + m_recorder.getFrameQueue().size() + " left");
             } catch (Exception e) {
             }

@@ -14,11 +14,11 @@ public class FrameQueue<T> {
     }
 
     public T poll() {
-        return list.pollLast();
+        return list.pollFirst();
     }
 
     public T peek() {
-        return list.peekLast();
+        return list.peekFirst();
     }
 
     public int size() {

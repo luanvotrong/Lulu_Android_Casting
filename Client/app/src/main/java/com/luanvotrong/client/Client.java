@@ -87,12 +87,29 @@ public class Client {
                     if (len > 0) {
                         dis.readFully(data);
                     }
-                    //saveData(BitmapFactory.decodeByteArray(data, 0, len));
+                    //save(BitmapFactory.decodeByteArray(data, 0, len));
                     m_context.onDraw(BitmapFactory.decodeByteArray(data, 0, len));
                 } catch (Exception e) {
 
                 }
             }
+        }
+    }
+    private int frame = 0;
+    public void save(Bitmap bm) {
+        frame++;
+        java.io.File image = new java.io.File(Environment.getExternalStorageDirectory() + "/capture" + frame + ".png");
+        if (image.exists()) {
+            image.delete();
+        }
+
+        try {
+            FileOutputStream out = new FileOutputStream(image);
+            bm.compress(Bitmap.CompressFormat.PNG, 100, out);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
