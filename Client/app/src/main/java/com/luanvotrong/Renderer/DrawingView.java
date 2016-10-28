@@ -41,35 +41,9 @@ public class DrawingView extends View {
             m_timer -= deltaTime;
             if(m_timer <= 0)
             {
-                //saveData(m_frameQueue.poll());
+                m_frameQueue.poll();
                 m_timer += FPS_INTERVAL;
             }
-        }
-
-
-        private int frameCount = 0;
-        public void saveData(Bitmap bm) {
-            if(bm == null)
-                return;
-            frameCount++;
-            long begin_time = System.nanoTime();
-            java.io.File image = new java.io.File(Environment.getExternalStorageDirectory() + "/capture" + frameCount + ".png");
-            if (image.exists()) {
-                image.delete();
-            }
-
-            try {
-                FileOutputStream out = new FileOutputStream(image);
-                bm.compress(Bitmap.CompressFormat.PNG, 100, out);
-                out.flush();
-                out.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            long end_time = System.nanoTime();
-            long deltaTime = (end_time - begin_time) / 1000000;
-
-            Log.v("Lulu", "deltatime: " + deltaTime);
         }
     }
 
@@ -101,7 +75,7 @@ public class DrawingView extends View {
 
         Bitmap bm = m_frameQueue.peek();
         if(bm != null) {
-            canvas.drawBitmap(m_frameQueue.peek(), 0, 0, null);
+            canvas.drawBitmap(bm, 0, 0, null);
         }
     }
 
