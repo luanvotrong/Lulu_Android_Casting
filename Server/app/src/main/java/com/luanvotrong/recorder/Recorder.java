@@ -1,29 +1,28 @@
 package com.luanvotrong.recorder;
 
 import android.graphics.Bitmap;
-import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.View;
 
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import com.luanvotrong.Utiliies.FrameQueue;
+
 
 public class Recorder implements Runnable {
-    private float FPS_INTERVAL = 1000 / 60;
+    private int FPS = 30;
+    private float FPS_INTERVAL = 1000 / FPS;
     private float m_timer;
     private long m_lastTime;
 
     private View m_context;
-    private Queue<Bitmap> m_frameQueue;
+    private FrameQueue<Bitmap> m_frameQueue;
 
     public Recorder() {
         m_context = null;
         m_lastTime = System.currentTimeMillis();
         m_timer = FPS_INTERVAL;
-        m_frameQueue = new LinkedList();
+        m_frameQueue = new FrameQueue();
     }
 
     public void setView(View context)
@@ -47,21 +46,19 @@ public class Recorder implements Runnable {
         m_timer -= deltaTime;
         if(m_timer <= 0)
         {
-            Log.d("Lulu", "Recorded");
             Bitmap original = m_context.getDrawingCache();
-            m_frameQueue.add(Bitmap.createScaledBitmap(original, original.getWidth() / 5, original.getHeight() / 5, true));
+            addFrame(Bitmap.createScaledBitmap(original, original.getWidth() / 3, original.getHeight() / 3, false));
             m_timer += FPS_INTERVAL;
         }
-        Log.d("Lulu", "timer: " + m_timer + "deltatime " + deltaTime);
     }
 
-    public int numberOfFrame()
+    private void addFrame(Bitmap bm)
     {
-        return m_frameQueue.size();
+        m_frameQueue.add(bm);
     }
 
-    public Bitmap getFrame()
+    public FrameQueue getFrameQueue()
     {
-        return m_frameQueue.poll();
+        return m_frameQueue;
     }
 }

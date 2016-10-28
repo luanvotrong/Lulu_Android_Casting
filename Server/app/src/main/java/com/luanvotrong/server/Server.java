@@ -137,7 +137,7 @@ public class Server {
         {
             while(!Thread.currentThread().isInterrupted())
             {
-                while(m_recorder.numberOfFrame() > 0)
+                while(m_recorder.getFrameQueue().size() > 0)
                 {
                     sendCapture();
                 }
@@ -155,10 +155,10 @@ public class Server {
     }
 
     public void sendCapture() {
-        Bitmap bm = m_recorder.getFrame();
+        Bitmap bm = (Bitmap)m_recorder.getFrameQueue().poll();
         if(bm != null) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bm.compress(Bitmap.CompressFormat.PNG, 100, baos);
+            bm.compress(Bitmap.CompressFormat.PNG, 80, baos);
             byte array[] = baos.toByteArray();
 
             try {
@@ -166,7 +166,7 @@ public class Server {
                 DataOutputStream dos = new DataOutputStream(os);
                 dos.writeInt(array.length);
                 dos.write(array, 0, array.length);
-                Log.d("Lulu", "Sent bitmap!");
+                Log.d("Lulu", "Sent bitmap! " + m_recorder.getFrameQueue().size() + " left");
             } catch (Exception e) {
             }
         }

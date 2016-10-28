@@ -4,21 +4,25 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.provider.Settings;
+import android.os.Environment;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import java.io.FileOutputStream;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import com.luanvotrong.Utiliies.FrameQueue;
+
 public class DrawingView extends View {
-    private float FPS_INTERVAL = 1000 / 60;
+    private int FPS = 30;
+    private float FPS_INTERVAL = 1000 / FPS;
     private float m_timer;
     private long m_lastTime;
 
-    private Queue<Bitmap> m_frameQueue;
+    private FrameQueue<Bitmap> m_frameQueue;
 
     private class FrameUpdater implements Runnable {
         @Override
@@ -37,10 +41,35 @@ public class DrawingView extends View {
             m_timer -= deltaTime;
             if(m_timer <= 0)
             {
-                m_frameQueue.poll();
-                Log.d("Lulu", "Update frame: " + m_frameQueue.size());
+                //saveData(m_frameQueue.poll());
                 m_timer += FPS_INTERVAL;
             }
+        }
+
+
+        private int frameCount = 0;
+        public void saveData(Bitmap bm) {
+            if(bm == null)
+                return;
+            frameCount++;
+            long begin_time = System.nanoTime();
+            java.io.File image = new java.io.File(Environment.getExternalStorageDirectory() + "/capture" + frameCount + ".png");
+            if (image.exists()) {
+                image.delete();
+            }
+
+            try {
+                FileOutputStream out = new FileOutputStream(image);
+                bm.compress(Bitmap.CompressFormat.PNG, 100, out);
+                out.flush();
+                out.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            long end_time = System.nanoTime();
+            long deltaTime = (end_time - begin_time) / 1000000;
+
+            Log.v("Lulu", "deltatime: " + deltaTime);
         }
     }
 
@@ -54,7 +83,7 @@ public class DrawingView extends View {
     {
         m_lastTime = System.currentTimeMillis();
         m_timer = FPS_INTERVAL;
-        m_frameQueue = new LinkedList();
+        m_frameQueue = new FrameQueue();
         new Thread( new FrameUpdater() ).start();
     }
 

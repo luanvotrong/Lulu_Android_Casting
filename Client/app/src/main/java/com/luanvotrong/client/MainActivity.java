@@ -99,19 +99,6 @@ public class MainActivity extends AppCompatActivity {
      */
     public native String stringFromJNI();
 
-    /*
-    public void onDraw()
-    {
-        String path = Environment.getExternalStorageDirectory() + "/capture.png";
-        File pic = new File(path);
-        if(pic.exists()) {
-            Bitmap bm = BitmapFactory.decodeFile(path);
-            m_drawingView.draw(bm);
-            m_drawingLayout.setVisibility(LinearLayout.VISIBLE);
-        }
-    }
-    */
-
     public void onDraw(Bitmap bm)
     {
         m_drawingView.addFrame(bm);

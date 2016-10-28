@@ -87,8 +87,8 @@ public class Client {
                     if (len > 0) {
                         dis.readFully(data);
                     }
-                    //saveData(BitmapFactory.decodeByteArray(data, 0, len));
-                    m_context.onDraw(BitmapFactory.decodeByteArray(data, 0, len));
+                    saveData(BitmapFactory.decodeByteArray(data, 0, len));
+                    //m_context.onDraw(BitmapFactory.decodeByteArray(data, 0, len));
                 } catch (Exception e) {
 
                 }
@@ -96,13 +96,11 @@ public class Client {
         }
     }
 
-    /*
+    private int frameCount = 0;
     public void saveData(Bitmap bm) {
-        String path = Environment.getExternalStorageDirectory() + "/capture.png";
-        Log.v("Lulu", "path: " + path);
-
+        frameCount++;
         long begin_time = System.nanoTime();
-        java.io.File image = new java.io.File(Environment.getExternalStorageDirectory() + "/capture.png");
+        java.io.File image = new java.io.File(Environment.getExternalStorageDirectory() + "/capture" + frameCount + ".png");
         if (image.exists()) {
             image.delete();
         }
@@ -120,7 +118,6 @@ public class Client {
 
         Log.v("Lulu", "deltatime: " + deltaTime);
     }
-    */
 
     public void init(MainActivity context) {
         m_context = context;
