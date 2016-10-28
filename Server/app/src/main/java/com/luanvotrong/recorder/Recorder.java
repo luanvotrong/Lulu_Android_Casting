@@ -1,12 +1,14 @@
 package com.luanvotrong.recorder;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
 import com.luanvotrong.Utiliies.FrameQueue;
+
+import java.io.FileOutputStream;
 
 
 public class Recorder implements Runnable {
@@ -25,15 +27,13 @@ public class Recorder implements Runnable {
         m_frameQueue = new FrameQueue();
     }
 
-    public void setView(View context)
-    {
+    public void setView(View context) {
         m_context = context;
     }
 
     @Override
     public void run() {
-        while(!Thread.currentThread().isInterrupted())
-        {
+        while (!Thread.currentThread().isInterrupted()) {
             long now = System.currentTimeMillis();
             long deltaTime = now - m_lastTime;
             update(deltaTime);
@@ -41,24 +41,51 @@ public class Recorder implements Runnable {
         }
     }
 
-    private void update(long deltaTime)
-    {
+    private void update(long deltaTime) {
         m_timer -= deltaTime;
-        if(m_timer <= 0)
-        {
-            Bitmap original = m_context.getDrawingCache();
-            addFrame(Bitmap.createScaledBitmap(original, original.getWidth() / 3, original.getHeight() / 3, false));
+        if (m_timer <= 0) {
+            addFrame(captureView());
             m_timer += FPS_INTERVAL;
         }
     }
 
-    private void addFrame(Bitmap bm)
-    {
-        m_frameQueue.add(bm);
+    private Bitmap captureView() {
+        m_context.setDrawingCacheEnabled(true);
+        m_context.buildDrawingCache();
+        Bitmap bm = m_context.getDrawingCache();
+        bm =  Bitmap.createScaledBitmap(bm, bm.getWidth() / 3, bm.getHeight() / 3, true);
+        save(bm);
+        m_context.setDrawingCacheEnabled(false);
+
+        return bm;
     }
 
-    public FrameQueue getFrameQueue()
-    {
+    private int frame = 0;
+    public void save(Bitmap bm) {
+        frame++;
+        java.io.File image = new java.io.File(Environment.getExternalStorageDirectory() + "/capture" + frame + ".png");
+        if (image.exists()) {
+            image.delete();
+        }
+
+        try {
+            FileOutputStream out = new FileOutputStream(image);
+            bm.compress(Bitmap.CompressFormat.PNG, 100, out);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void addFrame(Bitmap bm) {
+        if (bm != null) {
+            m_frameQueue.add(bm);
+            Log.d("Lulu", "Added " + m_frameQueue.size());
+        }
+    }
+
+    public FrameQueue getFrameQueue() {
         return m_frameQueue;
     }
 }
