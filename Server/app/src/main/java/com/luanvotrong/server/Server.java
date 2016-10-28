@@ -159,6 +159,7 @@ public class Server {
             } catch (Exception e) {
             }
             bm.recycle();
+            bm = null;
         }
     }
 

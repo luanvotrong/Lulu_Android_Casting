@@ -19,6 +19,7 @@ public class DrawingView extends View {
     private long m_lastTime;
 
     private FrameQueue<Bitmap> m_frameQueue;
+    private Bitmap m_drawingCache;
 
     private class FrameUpdater implements Runnable {
         @Override
@@ -37,7 +38,11 @@ public class DrawingView extends View {
             m_timer -= deltaTime;
             if(m_timer <= 0)
             {
-                m_frameQueue.poll();
+                if(m_drawingCache != null) {
+                    m_drawingCache.recycle();
+                    m_drawingCache = null;
+                }
+                m_drawingCache = m_frameQueue.poll();
                 m_timer += FPS_INTERVAL;
                 postInvalidate();
             }
@@ -70,17 +75,15 @@ public class DrawingView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        Log.d("Lulu", "onDraw");
-        Bitmap bm = m_frameQueue.peek();
-        if(bm != null) {
+        if(m_drawingCache != null) {
             canvas.drawColor(Color.BLACK);
-            canvas.drawBitmap(bm, 0, 0, null);
+            canvas.drawBitmap(m_drawingCache, 0, 0, null);
             Log.d("Lulu", "onDraw frame");
-            bm.recycle();
         }
     }
 
     public void addFrame(Bitmap bm) {
         m_frameQueue.add(bm);
+        Log.d("Lulu", "onreceive " + m_frameQueue.size());
     }
 }
