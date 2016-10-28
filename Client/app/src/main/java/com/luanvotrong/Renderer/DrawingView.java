@@ -76,6 +76,7 @@ public class DrawingView extends View {
             canvas.drawColor(Color.BLACK);
             canvas.drawBitmap(bm, 0, 0, null);
             Log.d("Lulu", "onDraw frame");
+            bm.recycle();
         }
     }
 

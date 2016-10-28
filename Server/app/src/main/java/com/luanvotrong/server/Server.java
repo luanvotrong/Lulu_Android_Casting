@@ -158,6 +158,7 @@ public class Server {
                 Log.d("Lulu", "Sent bitmap! " + m_recorder.getFrameQueue().size() + " left");
             } catch (Exception e) {
             }
+            bm.recycle();
         }
     }
 
