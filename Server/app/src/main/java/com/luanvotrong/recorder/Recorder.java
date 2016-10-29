@@ -40,7 +40,14 @@ public class Recorder implements Runnable {
     private void update(long deltaTime) {
         m_timer -= deltaTime;
         if (m_timer <= 0) {
-            addFrame(captureView());
+            m_context.post(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            addFrame(captureView());
+                        }
+                    }
+            );
             m_timer += FPS_INTERVAL;
         }
     }
