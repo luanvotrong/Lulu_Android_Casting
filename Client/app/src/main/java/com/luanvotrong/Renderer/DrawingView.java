@@ -19,13 +19,11 @@ public class DrawingView extends View {
     private long m_lastTime;
 
     private FrameQueue<Bitmap> m_frameQueue;
-    private Bitmap m_drawingCache;
 
     private class FrameUpdater implements Runnable {
         @Override
         public void run() {
-            while(!Thread.currentThread().isInterrupted())
-            {
+            while (!Thread.currentThread().isInterrupted()) {
                 long now = System.currentTimeMillis();
                 long deltaTime = now - m_lastTime;
                 update(deltaTime);
@@ -33,16 +31,14 @@ public class DrawingView extends View {
             }
         }
 
-        private void update(long deltaTime)
-        {
+        private void update(long deltaTime) {
             m_timer -= deltaTime;
-            if(m_timer <= 0)
-            {
-                if(m_drawingCache != null) {
-                    m_drawingCache.recycle();
-                    m_drawingCache = null;
+            if (m_timer <= 0) {
+                Bitmap bm = m_frameQueue.poll();
+                if (bm != null) {
+                    bm.recycle();
+                    bm = null;
                 }
-                m_drawingCache = m_frameQueue.poll();
                 m_timer += FPS_INTERVAL;
                 postInvalidate();
             }
@@ -55,12 +51,11 @@ public class DrawingView extends View {
         m_timer = System.currentTimeMillis();
     }
 
-    public void init()
-    {
+    public void init() {
         m_lastTime = System.currentTimeMillis();
         m_timer = FPS_INTERVAL;
         m_frameQueue = new FrameQueue();
-        new Thread( new FrameUpdater() ).start();
+        new Thread(new FrameUpdater()).start();
     }
 
     @Override
@@ -74,10 +69,9 @@ public class DrawingView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
-        if(m_drawingCache != null) {
+        if (m_frameQueue.peek() != null) {
             canvas.drawColor(Color.BLACK);
-            canvas.drawBitmap(m_drawingCache, 0, 0, null);
+            canvas.drawBitmap(m_frameQueue.peek(), 0, 0, null);
             Log.d("Lulu", "onDraw frame");
         }
     }
