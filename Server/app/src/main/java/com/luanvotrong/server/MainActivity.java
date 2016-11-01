@@ -1,6 +1,19 @@
 package com.luanvotrong.server;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.hardware.display.DisplayManager;
+import android.hardware.display.VirtualDisplay;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.text.BoringLayout;
+import android.util.Log;
+import android.view.Surface;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.widget.Button;
 import android.widget.TextView;
 import android.support.design.widget.FloatingActionButton;
@@ -10,6 +23,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import android.media.projection.MediaProjectionManager;
+import android.media.projection.MediaProjection;
 
 import com.luanvotrong.recorder.Recorder;
 
@@ -21,12 +37,44 @@ public class MainActivity extends AppCompatActivity {
     private Server m_server;
     private View m_screenView;
 
+    private static final String STATE_RESULT_CODE = "result_code";
+    private static final String STATE_RESULT_DATA = "result_data";
+    private static final int REQUEST_MEDIA_PROJECTION = 1;
+    private int m_resultCode;
+    private Intent m_resultData;
+
+    private MediaProjectionManager m_mediaProjectMgr;
+
+    //Activity Override
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+        {
+            if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE))
+            {
+
+            }
+            else
+            {
+                ActivityCompat.requestPermissions(this, new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE }, 1);
+            }
+        }
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+        {
+            if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE))
+            {
+
+            }
+            else
+            {
+                ActivityCompat.requestPermissions(this, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE }, 1);
+            }
+        }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -38,9 +86,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         m_screenView = (View) findViewById(android.R.id.content).getRootView();
-
-        m_recorder = new Recorder();
-        m_recorder.setView(m_screenView);
 
         m_server = new Server();
         m_server.init(this);
@@ -58,14 +103,50 @@ public class MainActivity extends AppCompatActivity {
         m_castButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new Thread(m_recorder).start();
-                m_server.startCasting();
+                //new Thread(m_recorder).start();
+                //m_server.startCasting();
+                //startScreenCapture();
+                if(m_recorder != null)
+                {
+                    if(m_recorder.isRecording())
+                    {
+                        m_recorder.releaseEncoders();
+                    }
+                    else
+                    {
+                        m_recorder.startRecording();
+                    }
+                }
             }
         });
 
         // Example of a call to a native method
         TextView tv = (TextView) findViewById(R.id.sample_text);
         tv.setText(stringFromJNI());
+
+        //////////////////////////////////////////////
+        if (savedInstanceState != null) {
+            m_resultCode = savedInstanceState.getInt(STATE_RESULT_CODE);
+            m_resultData = savedInstanceState.getParcelable(STATE_RESULT_DATA);
+        }
+
+        m_mediaProjectMgr = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+        startActivityForResult(m_mediaProjectMgr.createScreenCaptureIntent(), REQUEST_MEDIA_PROJECTION);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_MEDIA_PROJECTION) {
+            if (resultCode != MainActivity.RESULT_OK) {
+                Log.d("Lulu", "Request failed");
+                return;
+            }
+
+            m_resultCode = resultCode;
+            m_resultData = data;
+
+            m_recorder = new Recorder(this, m_mediaProjectMgr.getMediaProjection(m_resultCode, m_resultData));
+        }
     }
 
     @Override
@@ -73,38 +154,6 @@ public class MainActivity extends AppCompatActivity {
         m_server.disconnect();
         super.onStop();
     }
-
-    /*
-    public void onCapture() {
-        Bitmap bm = m_screenView.getDrawingCache();
-
-        String path = Environment.getExternalStorageDirectory() + "/capture.png";
-        Log.v("Lulu", "path: " + path);
-
-        long begin_time = System.nanoTime();
-        java.io.File image = new java.io.File(Environment.getExternalStorageDirectory() + "/capture.png");
-        if (image.exists()) {
-            image.delete();
-        }
-
-        try {
-            FileOutputStream out = new FileOutputStream(image);
-            bm.compress(Bitmap.CompressFormat.PNG, 100, out);
-            out.flush();
-            out.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        long end_time = System.nanoTime();
-        long deltaTime = (end_time - begin_time) / 1000000;
-
-        Log.v("Lulu", "deltatime: " + deltaTime);
-    }
-
-    public Bitmap getCapture() {
-        return m_screenView.getDrawingCache();
-    }
-    */
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -139,3 +188,38 @@ public class MainActivity extends AppCompatActivity {
         System.loadLibrary("native-lib");
     }
 }
+
+
+
+
+    /*
+    public void onCapture() {
+        Bitmap bm = m_screenView.getDrawingCache();
+
+        String path = Environment.getExternalStorageDirectory() + "/capture.png";
+        Log.v("Lulu", "path: " + path);
+
+        long begin_time = System.nanoTime();
+        java.io.File image = new java.io.File(Environment.getExternalStorageDirectory() + "/capture.png");
+        if (image.exists()) {
+            image.delete();
+        }
+
+        try {
+            FileOutputStream out = new FileOutputStream(image);
+            bm.compress(Bitmap.CompressFormat.PNG, 100, out);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        long end_time = System.nanoTime();
+        long deltaTime = (end_time - begin_time) / 1000000;
+
+        Log.v("Lulu", "deltatime: " + deltaTime);
+    }
+
+    public Bitmap getCapture() {
+        return m_screenView.getDrawingCache();
+    }
+    */

@@ -143,6 +143,7 @@ public class Server {
     }
 
     public void sendCapture() {
+        /*
         Bitmap bm = (Bitmap) m_recorder.getFrameQueue().poll();
         if (bm != null) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -161,6 +162,7 @@ public class Server {
             bm.recycle();
             bm = null;
         }
+        */
     }
 
     public void disconnect() {
