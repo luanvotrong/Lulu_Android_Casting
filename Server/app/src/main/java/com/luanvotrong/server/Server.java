@@ -20,6 +20,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 
 
 public class Server {
@@ -143,12 +144,9 @@ public class Server {
     }
 
     public void sendCapture() {
-        /*
-        Bitmap bm = (Bitmap) m_recorder.getFrameQueue().poll();
-        if (bm != null) {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bm.compress(Bitmap.CompressFormat.PNG, 80, baos);
-            byte array[] = baos.toByteArray();
+        java.nio.ByteBuffer bytebuffer = (java.nio.ByteBuffer)m_recorder.getFrameQueue().poll();
+        if (bytebuffer != null) {
+            byte array[] = bytebuffer.array();
 
             try {
                 OutputStream os = m_socket.getOutputStream();
@@ -159,10 +157,7 @@ public class Server {
                 Log.d("Lulu", "Sent bitmap! " + m_recorder.getFrameQueue().size() + " left");
             } catch (Exception e) {
             }
-            bm.recycle();
-            bm = null;
         }
-        */
     }
 
     public void disconnect() {

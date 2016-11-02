@@ -4,16 +4,13 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.hardware.display.DisplayManager;
-import android.hardware.display.VirtualDisplay;
+import android.media.session.MediaController;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.text.BoringLayout;
 import android.util.Log;
-import android.view.Surface;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.widget.Button;
 import android.widget.TextView;
 import android.support.design.widget.FloatingActionButton;
@@ -25,17 +22,20 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import android.media.projection.MediaProjectionManager;
-import android.media.projection.MediaProjection;
+import android.widget.VideoView;
 
 import com.luanvotrong.recorder.Recorder;
+
+import static com.luanvotrong.server.R.id.videoView;
 
 public class MainActivity extends AppCompatActivity {
 
     private Button m_connectButton;
     private Button m_castButton;
+    private Button m_playButton;
     private Recorder m_recorder;
     private Server m_server;
-    private View m_screenView;
+    private VideoView m_videoView;
 
     private static final String STATE_RESULT_CODE = "result_code";
     private static final String STATE_RESULT_DATA = "result_data";
@@ -85,8 +85,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        m_screenView = (View) findViewById(android.R.id.content).getRootView();
-
         m_server = new Server();
         m_server.init(this);
         m_server.setRecorder(m_recorder);
@@ -119,6 +117,19 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        m_playButton = (Button) findViewById(R.id.play);
+        m_playButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("Lulu", "startplay");
+                java.io.File video = new java.io.File(Environment.getExternalStorageDirectory() + "/video.mp4");
+                m_videoView.setVideoPath(video.getAbsolutePath());
+                m_videoView.start();
+            }
+        });
+
+        m_videoView = (VideoView) findViewById(videoView);
 
         // Example of a call to a native method
         TextView tv = (TextView) findViewById(R.id.sample_text);

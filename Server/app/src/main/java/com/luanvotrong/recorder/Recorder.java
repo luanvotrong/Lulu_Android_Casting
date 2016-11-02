@@ -17,7 +17,6 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.Surface;
-import android.view.View;
 
 import com.luanvotrong.Utiliies.FrameQueue;
 
@@ -50,6 +49,8 @@ public class Recorder {
     private int m_trackIdx = -1;
     String m_videoPath = Environment.getExternalStorageDirectory() + "/video.mp4";
 
+    FrameQueue<ByteBuffer> m_buffer;
+
     private final Handler m_drainHandler = new Handler(Looper.getMainLooper());
     private Runnable m_drainEncoderRunnable = new Runnable() {
         @Override
@@ -61,10 +62,10 @@ public class Recorder {
     public Recorder(Activity context, MediaProjection mediaProjection) {
         m_context = context;
         m_mediaProjection = mediaProjection;
+        m_buffer = new FrameQueue<ByteBuffer>();
     }
 
-    public boolean isRecording()
-    {
+    public boolean isRecording() {
         return m_isRecording;
     }
 
@@ -84,7 +85,7 @@ public class Recorder {
         m_context.getWindowManager().getDefaultDisplay().getMetrics(metrics);
         m_pxDensity = metrics.densityDpi;
 
-        DisplayManager dm = (DisplayManager)m_context.getSystemService(Context.DISPLAY_SERVICE);
+        DisplayManager dm = (DisplayManager) m_context.getSystemService(Context.DISPLAY_SERVICE);
         Display defaultDisplay = dm.getDisplay(Display.DEFAULT_DISPLAY);
         if (defaultDisplay == null) {
             throw new RuntimeException("No display found.");
@@ -105,6 +106,10 @@ public class Recorder {
 
         // Start the encoders
         drainEncoder();
+    }
+
+    public FrameQueue getFrameQueue() {
+        return m_buffer;
     }
 
     private void prepareVideoEncoder() {
@@ -167,6 +172,7 @@ public class Recorder {
                     if (m_muxerStarted) {
                         encodedData.position(m_videoBufferInfo.offset);
                         encodedData.limit(m_videoBufferInfo.offset + m_videoBufferInfo.size);
+                        m_buffer.add(encodedData);
                         m_mediaMuxer.writeSampleData(m_trackIdx, encodedData, m_videoBufferInfo);
                     } else {
                         // muxer not started
