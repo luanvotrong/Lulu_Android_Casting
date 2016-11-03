@@ -104,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
                 //new Thread(m_recorder).start();
                 //m_server.startCasting();
                 //startScreenCapture();
+                setupCasting();
             }
         });
 

@@ -2,6 +2,7 @@ package com.luanvotrong.recorder;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
 import android.media.MediaRecorder;
@@ -20,9 +21,7 @@ import com.luanvotrong.Utiliies.FrameQueue;
 import com.luanvotrong.server.Server;
 
 
-public class Recorder {
-    private static final String VIDEO_MIME_TYPE = "video/avc";
-
+public class Recorder  implements  MediaRecorder.OnInfoListener{
     private MediaProjection m_mediaProjection;
     private VirtualDisplay m_virtualDisplay;
     private Surface m_inputSurface;
@@ -35,6 +34,10 @@ public class Recorder {
 
     private MediaRecorder m_mediaRecorder;
     boolean m_isRecording = false;
+
+    String m_videoPath = Environment.getExternalStorageDirectory() + "/video";
+    int m_videoId = 0;
+    String m_extension = ".mp4";
 
     //Video handling
     Server m_server;
@@ -56,7 +59,7 @@ public class Recorder {
         m_isRecording = true;
 
         //Prepare File
-        ParcelFileDescriptor pdf = ParcelFileDescriptor.fromSocket(m_server.getSocket());
+        m_videoId++;
 
         // Get the display size and density.
         m_screenW = m_context.getWindow().getDecorView().getWidth();
@@ -73,15 +76,15 @@ public class Recorder {
         }
 
         m_mediaRecorder = new MediaRecorder();
-        m_mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         m_mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
-        m_mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        m_mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-        m_mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);
+        m_mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+        m_mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
         m_mediaRecorder.setVideoEncodingBitRate(512 * 1000);
         m_mediaRecorder.setVideoFrameRate(30);
         m_mediaRecorder.setVideoSize(m_screenW, m_screenH);
-        m_mediaRecorder.setOutputFile(pdf.getFileDescriptor());
+        m_mediaRecorder.setMaxDuration(1000);
+        m_mediaRecorder.setOutputFile(m_videoPath+m_videoId+m_extension);
+        m_mediaRecorder.setOnInfoListener(this);
 
         try
         {
@@ -108,5 +111,18 @@ public class Recorder {
 
         m_mediaRecorder.stop();
         m_mediaRecorder.reset();
+    }
+
+    @Override
+    public void onInfo(MediaRecorder mr, int what, int extra)
+    {
+        Log.d("Lulu", "on");
+        if(what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED)
+        {
+
+            Log.d("Lulu", "on1");
+            releaseEncoders();
+            startRecording();
+        }
     }
 }
