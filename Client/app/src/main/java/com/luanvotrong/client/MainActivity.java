@@ -26,12 +26,13 @@ import java.io.File;
 
 import com.luanvotrong.Renderer.*;
 
-public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback {
+public class MainActivity extends AppCompatActivity {
     private Client m_client = null;
     private Button m_listeningButton;
     private VideoView m_videoView;
-    private MediaPlayer m_player;
-    private SurfaceHolder m_holder;
+    String m_videoPath = Environment.getExternalStorageDirectory() + "/video";
+    int m_videoId = 0;
+    String m_extension = ".mp4";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,15 +63,26 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             }
         });
 
-        m_player = new MediaPlayer();
-
         m_videoView = (VideoView) findViewById(R.id.videoView);
-        m_holder = m_videoView.getHolder();
-        m_holder.addCallback(this);
 
         // Example of a call to a native method
         TextView tv = (TextView) findViewById(R.id.sample_text);
         tv.setText(stringFromJNI());
+    }
+
+    public void onFileReceived()
+    {
+        try {
+            m_videoId++;
+            m_videoView.setVideoPath(m_videoPath + m_videoId + m_extension);
+            m_videoView.requestFocus();
+            m_videoView.start();
+
+            Log.d("Lulu", "set");
+        }catch (Exception e)
+        {
+            Log.d("Lulu", e.toString());
+        }
     }
 
     @Override
@@ -110,52 +122,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     public void onDraw(Bitmap bm) {
     }
 
-    public void setupVideoView(ParcelFileDescriptor pfd) {
-        try {
-            m_player.setDataSource(pfd.getFileDescriptor());
-            m_player.prepare();
-            m_player.prepareAsync();
-            m_player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mp) {
-                    m_player.start();
-                }
-            });
-        }catch (Exception e)
-        {
-            Log.d("Lulu", e.toString());
-        }
-    }
-
     // Used to load the 'native-lib' library on application startup.
     static {
         System.loadLibrary("native-lib");
-    }
-
-    @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-
-        try {
-            m_player.setDisplay(holder);
-        } catch (IllegalArgumentException | SecurityException | IllegalStateException e) {
-        }
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-
-        try {
-
-        } catch (IllegalArgumentException | SecurityException | IllegalStateException e) {
-        }
-    }
-
-    @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
-
-        try {
-            m_player.setDisplay(holder);
-        } catch (IllegalArgumentException | SecurityException | IllegalStateException e) {
-        }
     }
 }

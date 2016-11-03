@@ -9,6 +9,7 @@ import android.util.Log;
 
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.DatagramPacket;
@@ -98,9 +99,23 @@ public class Client {
                         dis.readFully(data);
                     }
                     m_videoId++;
+                    File file = new File(m_videoPath+m_videoId+m_extension);
+                    if(file.exists())
+                        file.delete();
                     FileOutputStream fos = new FileOutputStream(m_videoPath+m_videoId+m_extension);
                     BufferedOutputStream bos = new BufferedOutputStream(fos);
                     bos.write(data);
+                    if(m_videoId==1)
+                    {
+                        m_context.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                m_context.onFileReceived();
+                            }
+                        });
+                    }
+                    bos.flush();
+                    bos.close();
                     Log.d("Lulu", "wrote");
 
                 } catch (Exception e) {
