@@ -11,8 +11,13 @@ import android.net.DhcpInfo;
 
 import com.luanvotrong.recorder.Recorder;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.DatagramPacket;
@@ -87,7 +92,6 @@ public class Server {
                 Log.d("Lulu", "Binded socket!");
                 m_serverSocket = new ServerSocket(m_tcpPort);
                 m_socket = m_serverSocket.accept();
-                m_context.setupCasting();
 
                 //ONCONNECTED
                 setState(CONNECTION_STATE.CONNECTED);
@@ -148,23 +152,34 @@ public class Server {
         m_senderThread.start();
     }
 
-    public void sendCapture() {
-        /*
-        java.nio.ByteBuffer bytebuffer = (java.nio.ByteBuffer)m_recorder.getFrameQueue().poll();
-        if (bytebuffer != null) {
-            byte array[] = bytebuffer.array();
+    String m_videoPath = Environment.getExternalStorageDirectory() + "/video";
+    int m_videoId = 0;
+    String m_extension = ".mp4";
 
-            try {
+    public void sendCapture() {
+        m_videoId++;
+        if(m_recorder.getCurrentFileId()<=m_videoId) {
+            m_videoId--;
+            return;
+        }
+        try {
+            File file = new File(m_videoPath+m_videoId+m_extension);
+            if(file.exists()) {
+                byte[] array = new byte[(int) file.length()];
+                FileInputStream fis = new FileInputStream(file);
+                BufferedInputStream bis = new BufferedInputStream(fis);
+                bis.read(array, 0, array.length);
+
                 OutputStream os = m_socket.getOutputStream();
                 DataOutputStream dos = new DataOutputStream(os);
                 dos.writeInt(array.length);
                 dos.write(array, 0, array.length);
 
-                Log.d("Lulu", "Sent bitmap! " + m_recorder.getFrameQueue().size() + " left");
-            } catch (Exception e) {
+                file.delete();
+                Log.d("Lulu", "id " + m_videoId);
             }
+        } catch (Exception e) {
         }
-        */
     }
 
     public void disconnect() {

@@ -7,6 +7,7 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
+import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -80,6 +81,9 @@ public class Client {
         }
     }
 
+    String m_videoPath = Environment.getExternalStorageDirectory() + "/video";
+    int m_videoId = 0;
+    String m_extension = ".mp4";
     private class ClientReceiveThread implements Runnable {
         @Override
         public void run() {
@@ -93,31 +97,16 @@ public class Client {
                     if (len > 0) {
                         dis.readFully(data);
                     }
-                    //save(BitmapFactory.decodeByteArray(data, 0, len));
-                    m_context.onDraw(BitmapFactory.decodeByteArray(data, 0, len));
-                } catch (Exception e) {
+                    m_videoId++;
+                    FileOutputStream fos = new FileOutputStream(m_videoPath+m_videoId+m_extension);
+                    BufferedOutputStream bos = new BufferedOutputStream(fos);
+                    bos.write(data);
+                    Log.d("Lulu", "wrote");
 
+                } catch (Exception e) {
+                    Log.d("Lulu", e.toString());
                 }
             }
-        }
-    }
-
-    private int frame = 0;
-
-    public void save(Bitmap bm) {
-        frame++;
-        java.io.File image = new java.io.File(Environment.getExternalStorageDirectory() + "/capture" + frame + ".png");
-        if (image.exists()) {
-            image.delete();
-        }
-
-        try {
-            FileOutputStream out = new FileOutputStream(image);
-            bm.compress(Bitmap.CompressFormat.PNG, 100, out);
-            out.flush();
-            out.close();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
@@ -141,8 +130,7 @@ public class Client {
                 break;
             case CONNECTED:
                 Log.d("Lulu", "Connected");
-                m_pfd = ParcelFileDescriptor.fromSocket(m_socket);
-                m_context.setupVideoView(m_pfd);
+                new Thread(new ClientReceiveThread()).start();
                 break;
         }
     }

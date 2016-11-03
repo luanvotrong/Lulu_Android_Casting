@@ -87,13 +87,13 @@ public class MainActivity extends AppCompatActivity {
 
         m_server = new Server();
         m_server.init(this);
-        m_server.setRecorder(m_recorder);
 
         m_connectButton = (Button) findViewById(R.id.connect);
         m_connectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 m_server.setState(Server.CONNECTION_STATE.CONNECTING);
+                setupCasting();
             }
         });
 
@@ -101,10 +101,7 @@ public class MainActivity extends AppCompatActivity {
         m_castButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //new Thread(m_recorder).start();
-                //m_server.startCasting();
-                //startScreenCapture();
-                setupCasting();
+                m_server.startCasting();
             }
         });
 
@@ -137,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void setupCasting()
     {
+        m_server.setRecorder(m_recorder);
         if(m_recorder != null)
         {
             if(m_recorder.isRecording())

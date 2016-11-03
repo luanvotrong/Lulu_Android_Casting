@@ -113,6 +113,11 @@ public class Recorder  implements  MediaRecorder.OnInfoListener{
         m_mediaRecorder.reset();
     }
 
+    public int getCurrentFileId()
+    {
+        return m_videoId;
+    }
+
     @Override
     public void onInfo(MediaRecorder mr, int what, int extra)
     {
