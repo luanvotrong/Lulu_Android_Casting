@@ -1,6 +1,7 @@
 package com.luanvotrong.client;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.*;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -70,17 +71,33 @@ public class MainActivity extends AppCompatActivity {
         tv.setText(stringFromJNI());
     }
 
-    public void onFileReceived()
-    {
+    public void onFileReceived() {
         try {
             m_videoId++;
-            m_videoView.setVideoPath(m_videoPath + m_videoId + m_extension);
-            m_videoView.requestFocus();
-            m_videoView.start();
+            File file = new File(m_videoPath + m_videoId + m_extension);
+            if (file.exists()) {
+                m_videoView.setVideoPath(m_videoPath + m_videoId + m_extension);
+                m_videoView.requestFocus();
+                m_videoView.start();
+                m_videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
 
-            Log.d("Lulu", "set");
-        }catch (Exception e)
-        {
+                    @Override
+                    public void onCompletion(MediaPlayer vmp) {
+                        onFileReceived();
+                    }
+                });
+                file = new File(m_videoPath + (m_videoId-1) + m_extension);
+                if(file.exists())
+                {
+                    file.delete();
+                }
+                Log.d("Lulu", "set");
+            }
+            else
+            {
+                m_videoId--;
+            }
+        } catch (Exception e) {
             Log.d("Lulu", e.toString());
         }
     }
