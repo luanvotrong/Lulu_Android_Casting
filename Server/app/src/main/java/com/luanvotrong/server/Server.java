@@ -76,6 +76,10 @@ public class Server {
     ServerSocket m_serverSocket = null;
     Socket m_socket = null;
 
+    public Socket getSocket() {
+        return m_socket;
+    }
+
     public class ServerThread implements Runnable {
         @Override
         public void run() {
@@ -144,6 +148,7 @@ public class Server {
     }
 
     public void sendCapture() {
+        /*
         java.nio.ByteBuffer bytebuffer = (java.nio.ByteBuffer)m_recorder.getFrameQueue().poll();
         if (bytebuffer != null) {
             byte array[] = bytebuffer.array();
@@ -158,6 +163,7 @@ public class Server {
             } catch (Exception e) {
             }
         }
+        */
     }
 
     public void disconnect() {

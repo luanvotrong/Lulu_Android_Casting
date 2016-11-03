@@ -157,6 +157,7 @@ public class MainActivity extends AppCompatActivity {
             m_resultData = data;
 
             m_recorder = new Recorder(this, m_mediaProjectMgr.getMediaProjection(m_resultCode, m_resultData));
+            m_recorder.setServer(m_server);
         }
     }
 
