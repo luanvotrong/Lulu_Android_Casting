@@ -2,8 +2,13 @@ package com.luanvotrong.client;
 
 import android.content.Context;
 import android.graphics.*;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
+import android.util.Log;
+import android.view.SurfaceHolder;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Button;
@@ -14,16 +19,18 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.VideoView;
 
 import java.io.File;
 
 import com.luanvotrong.Renderer.*;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SurfaceHolder.Callback {
     private Client m_client = null;
     private Button m_listeningButton;
-    private LinearLayout m_drawingLayout;
-    private DrawingView m_drawingView;
+    private VideoView m_videoView;
+    private MediaPlayer m_player;
+    private SurfaceHolder m_holder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,12 +38,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        m_drawingView = new DrawingView(this);
-        m_drawingView.init();
-        m_drawingLayout = (LinearLayout) findViewById(R.id.drawingView);
-        m_drawingLayout.addView(m_drawingView);
-        m_drawingLayout.setVisibility(LinearLayout.INVISIBLE);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -50,14 +51,19 @@ public class MainActivity extends AppCompatActivity {
         m_client = new Client();
         m_client.init(this);
         m_listeningButton = (Button) findViewById(R.id.listen);
-        m_listeningButton.setOnClickListener(new View.OnClickListener(){
+        m_listeningButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view){
+            public void onClick(View view) {
                 m_client.setState(Client.CONNECTION_STATE.LISTENING);
-                m_drawingLayout.setVisibility(LinearLayout.VISIBLE);
                 //onDraw();
             }
         });
+
+        m_player = new MediaPlayer();
+
+        m_videoView = (VideoView) findViewById(R.id.videoView);
+        m_holder = m_videoView.getHolder();
+        m_holder.addCallback(this);
 
         // Example of a call to a native method
         TextView tv = (TextView) findViewById(R.id.sample_text);
@@ -65,8 +71,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onStop()
-    {
+    public void onStop() {
         m_client.disconnect();
         super.onStop();
     }
@@ -99,13 +104,55 @@ public class MainActivity extends AppCompatActivity {
      */
     public native String stringFromJNI();
 
-    public void onDraw(Bitmap bm)
-    {
-        m_drawingView.addFrame(bm);
+    public void onDraw(Bitmap bm) {
+    }
+
+    public void setupVideoView(ParcelFileDescriptor pfd) {
+        try {
+            m_player.setDataSource(pfd.getFileDescriptor());
+            m_player.prepare();
+            m_player.prepareAsync();
+            m_player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    m_player.start();
+                }
+            });
+        }catch (Exception e)
+        {
+            Log.d("Lulu", e.toString());
+        }
     }
 
     // Used to load the 'native-lib' library on application startup.
     static {
         System.loadLibrary("native-lib");
+    }
+
+    @Override
+    public void surfaceCreated(SurfaceHolder holder) {
+
+        try {
+            m_player.setDisplay(holder);
+        } catch (IllegalArgumentException | SecurityException | IllegalStateException e) {
+        }
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+
+        try {
+
+        } catch (IllegalArgumentException | SecurityException | IllegalStateException e) {
+        }
+    }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
+
+        try {
+
+        } catch (IllegalArgumentException | SecurityException | IllegalStateException e) {
+        }
     }
 }

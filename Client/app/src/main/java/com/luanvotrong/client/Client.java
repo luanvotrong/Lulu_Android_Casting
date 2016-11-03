@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
 import java.io.DataInputStream;
@@ -28,6 +29,7 @@ public class Client {
     private int m_tcpPort = 63677;
     private InetAddress m_serverAddress = null;
     private MainActivity m_context;
+    private ParcelFileDescriptor m_pfd;
 
     private class UDPBroadcastListener implements Runnable {
         @Override
@@ -62,6 +64,10 @@ public class Client {
 
     Socket m_socket = null;
 
+    public Socket getSocket() {
+        return m_socket;
+    }
+
     private class ClientThread implements Runnable {
         @Override
         public void run() {
@@ -95,7 +101,9 @@ public class Client {
             }
         }
     }
+
     private int frame = 0;
+
     public void save(Bitmap bm) {
         frame++;
         java.io.File image = new java.io.File(Environment.getExternalStorageDirectory() + "/capture" + frame + ".png");
@@ -133,13 +141,15 @@ public class Client {
                 break;
             case CONNECTED:
                 Log.d("Lulu", "Connected");
-                new Thread(new ClientReceiveThread()).start();
+                m_pfd = ParcelFileDescriptor.fromSocket(m_socket);
+                m_context.setupVideoView(m_pfd);
                 break;
         }
     }
 
     public void disconnect() {
         try {
+            m_pfd.close();
             m_socket.close();
         } catch (Exception e) {
         }

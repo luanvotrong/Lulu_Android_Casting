@@ -9,6 +9,7 @@ import android.media.projection.MediaProjection;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -36,10 +37,7 @@ public class Recorder {
     boolean m_isRecording = false;
 
     //Video handling
-    String m_videoPath = Environment.getExternalStorageDirectory() + "/video.mp4";
-
     Server m_server;
-
 
     public Recorder(Activity context, MediaProjection mediaProjection) {
         m_context = context;
@@ -56,11 +54,9 @@ public class Recorder {
 
     public void startRecording() {
         m_isRecording = true;
-        java.io.File video = new java.io.File(m_videoPath);
-        if (video.exists()) {
-            video.delete();
-        }
 
+        //Prepare File
+        ParcelFileDescriptor pdf = ParcelFileDescriptor.fromSocket(m_server.getSocket());
 
         // Get the display size and density.
         m_screenW = m_context.getWindow().getDecorView().getWidth();
@@ -78,12 +74,12 @@ public class Recorder {
 
         m_mediaRecorder = new MediaRecorder();
         m_mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
-        m_mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.WEBM);
-        m_mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.VP8);
+        m_mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+        m_mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
         m_mediaRecorder.setVideoEncodingBitRate(512 * 1000);
         m_mediaRecorder.setVideoFrameRate(30);
         m_mediaRecorder.setVideoSize(m_screenW, m_screenH);
-        m_mediaRecorder.setOutputFile(m_videoPath);
+        m_mediaRecorder.setOutputFile(pdf.getFileDescriptor());
 
         try
         {
