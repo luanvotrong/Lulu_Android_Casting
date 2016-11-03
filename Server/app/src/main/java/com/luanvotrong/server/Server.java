@@ -87,6 +87,7 @@ public class Server {
                 Log.d("Lulu", "Binded socket!");
                 m_serverSocket = new ServerSocket(m_tcpPort);
                 m_socket = m_serverSocket.accept();
+                m_context.setupCasting();
 
                 //ONCONNECTED
                 setState(CONNECTION_STATE.CONNECTED);

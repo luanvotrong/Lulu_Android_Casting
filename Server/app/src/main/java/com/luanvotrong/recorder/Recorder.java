@@ -73,9 +73,11 @@ public class Recorder {
         }
 
         m_mediaRecorder = new MediaRecorder();
+        m_mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         m_mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
-        m_mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-        m_mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
+        m_mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        m_mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        m_mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);
         m_mediaRecorder.setVideoEncodingBitRate(512 * 1000);
         m_mediaRecorder.setVideoFrameRate(30);
         m_mediaRecorder.setVideoSize(m_screenW, m_screenH);

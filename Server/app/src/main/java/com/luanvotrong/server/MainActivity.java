@@ -104,17 +104,6 @@ public class MainActivity extends AppCompatActivity {
                 //new Thread(m_recorder).start();
                 //m_server.startCasting();
                 //startScreenCapture();
-                if(m_recorder != null)
-                {
-                    if(m_recorder.isRecording())
-                    {
-                        m_recorder.releaseEncoders();
-                    }
-                    else
-                    {
-                        m_recorder.startRecording();
-                    }
-                }
             }
         });
 
@@ -143,6 +132,22 @@ public class MainActivity extends AppCompatActivity {
 
         m_mediaProjectMgr = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
         startActivityForResult(m_mediaProjectMgr.createScreenCaptureIntent(), REQUEST_MEDIA_PROJECTION);
+    }
+
+    public void setupCasting()
+    {
+        if(m_recorder != null)
+        {
+            if(m_recorder.isRecording())
+            {
+                m_recorder.releaseEncoders();
+            }
+            else
+            {
+                m_recorder.startRecording();
+            }
+        }
+
     }
 
     @Override
