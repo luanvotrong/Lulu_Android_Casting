@@ -125,10 +125,10 @@ public class SessionBuilder {
 
 		switch (mVideoEncoder) {
 		case VIDEO_H263:
-			session.addVideoTrack(new H263Stream(mCamera));
+			session.addVideoTrack(new H263Stream());
 			break;
 		case VIDEO_H264:
-			H264Stream stream = new H264Stream(mCamera);
+			H264Stream stream = new H264Stream();
 			if (mContext!=null) 
 				stream.setPreferences(PreferenceManager.getDefaultSharedPreferences(mContext));
 			session.addVideoTrack(stream);
@@ -137,10 +137,7 @@ public class SessionBuilder {
 
 		if (session.getVideoTrack()!=null) {
 			VideoStream video = session.getVideoTrack();
-			video.setFlashState(mFlash);
 			video.setVideoQuality(mVideoQuality);
-			video.setSurfaceView(mSurfaceView);
-			video.setPreviewOrientation(mOrientation);
 			video.setDestinationPorts(5006);
 		}
 
