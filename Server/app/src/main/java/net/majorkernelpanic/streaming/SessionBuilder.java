@@ -75,6 +75,9 @@ public class SessionBuilder {
 	private String mDestination = null;
 	private Session.Callback mCallback = null;
 	private MediaProjection mMediaProjection = null;
+	private int m_screenW;
+	private int m_screenH;
+	private int m_pxDensity;
 
 	// Removes the default public constructor
 	private SessionBuilder() {}
@@ -139,6 +142,7 @@ public class SessionBuilder {
 			VideoStream video = session.getVideoTrack();
 			video.setVideoQuality(mVideoQuality);
 			video.setMediaProjection(mMediaProjection);
+			video.setScreenConfiguration(m_screenW, m_screenH, m_pxDensity);
 			video.setDestinationPorts(5006);
 		}
 
@@ -220,6 +224,14 @@ public class SessionBuilder {
 		mediaProjection = mMediaProjection;
 		return this;
 	}
+
+	public SessionBuilder setScreenConfiguration(int w, int h, int pxDensity) {
+		m_screenW = w;
+		m_screenH = h;
+		m_pxDensity = pxDensity;
+
+		return this;
+	}
 	
 	/** Returns the context set with {@link #setContext(Context)}*/
 	public Context getContext() {
@@ -275,7 +287,8 @@ public class SessionBuilder {
 		.setAudioQuality(mAudioQuality)
 		.setContext(mContext)
 		.setCallback(mCallback)
-		.setMediaProjection(mMediaProjection);
+		.setMediaProjection(mMediaProjection)
+		.setScreenConfiguration(m_screenW, m_screenH, m_pxDensity);
 	}
 
 }

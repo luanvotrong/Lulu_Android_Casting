@@ -8,6 +8,7 @@ import android.media.projection.MediaProjection;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
@@ -38,6 +39,9 @@ public class MainActivity extends AppCompatActivity implements Session.Callback 
     private int m_resultCode;
     private Intent m_resultData;
 
+    private int m_screenW;
+    private int m_screenH;
+    private int m_pxDensity;
     private MediaProjectionManager m_mediaProjectMgr;
     private MediaProjection m_mediaProjection;
 
@@ -119,6 +123,13 @@ public class MainActivity extends AppCompatActivity implements Session.Callback 
             m_resultCode = resultCode;
             m_resultData = data;
 
+            m_screenW = getWindow().getDecorView().getWidth();
+            m_screenH = getWindow().getDecorView().getHeight();
+            android.util.DisplayMetrics metrics = new android.util.DisplayMetrics();
+            m_pxDensity = metrics.densityDpi;
+            Log.d("Lulu", m_screenW + " " + m_screenH + " " + m_pxDensity);
+
+
             m_mediaProjection = m_mediaProjectMgr.getMediaProjection(m_resultCode, m_resultData);
             //Init streaming session after got media projectino
             m_session = SessionBuilder.getInstance()
@@ -127,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements Session.Callback 
                     .setAudioEncoder(SessionBuilder.AUDIO_NONE)
                     .setAudioQuality(new AudioQuality(16000, 32000))
                     .setVideoEncoder(SessionBuilder.VIDEO_H264)
-                    .setVideoQuality(new VideoQuality(320, 240, 20, 500000))
+                    .setVideoQuality(new VideoQuality(m_screenW, m_screenH, 20, 500000))
                     .setMediaProjection(m_mediaProjection)
                     .build();
         }

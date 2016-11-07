@@ -44,6 +44,8 @@ import android.content.SharedPreferences.Editor;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.Parameters;
+import android.hardware.display.DisplayManager;
+import android.hardware.display.VirtualDisplay;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
@@ -74,6 +76,8 @@ public abstract class VideoStream extends MediaStream {
     protected String mEncoderName;
     protected int mEncoderColorFormat;
     protected int mMaxFps = 0;
+
+    protected VirtualDisplay mVirtualDisplay;
 
     /**
      * Don't use this class directly.
@@ -235,7 +239,6 @@ public abstract class VideoStream extends MediaStream {
 
         Log.d(TAG, "Video encoded using the MediaCodec API with a buffer");
 
-
         EncoderDebugger debugger = EncoderDebugger.debug(mSettings, mQuality.resX, mQuality.resY);
         final NV21Convertor convertor = debugger.getNV21Convertor();
 
@@ -265,7 +268,6 @@ public abstract class VideoStream extends MediaStream {
 
         Log.d(TAG, "Video encoded using the MediaCodec API with a surface");
 
-
         EncoderDebugger debugger = EncoderDebugger.debug(mSettings, mQuality.resX, mQuality.resY);
 
         mMediaCodec = MediaCodec.createByCodecName(debugger.getEncoderName());
@@ -275,6 +277,9 @@ public abstract class VideoStream extends MediaStream {
         mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
         mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
         mMediaCodec.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
+
+        mVirtualDisplay = mMediaProjection.createVirtualDisplay("ScreenRecord", m_screenW, m_screenH, m_pxDensity, DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mMediaCodec.createInputSurface(), null, null);
+
         mMediaCodec.start();
 
         // The packetizer encapsulates the bit stream in an RTP stream and send it over the network
