@@ -93,7 +93,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 m_server.setState(Server.CONNECTION_STATE.CONNECTING);
-                setupCasting();
             }
         });
 
@@ -101,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
         m_castButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                setupCasting();
                 m_server.startCasting();
             }
         });

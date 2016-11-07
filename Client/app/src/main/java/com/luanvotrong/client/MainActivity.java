@@ -9,7 +9,10 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.os.StrictMode;
 import android.provider.MediaStore;
+import android.support.design.widget.CoordinatorLayout;
+import android.text.Layout;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.SurfaceHolder;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -44,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectDiskReads().detectDiskWrites().detectNetwork().penaltyLog().build());
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -61,9 +64,10 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 m_client.setState(Client.CONNECTION_STATE.LISTENING);
                 //onDraw();
+                m_listeningButton.setVisibility(Button.INVISIBLE);
+                fab.setVisibility(FloatingActionButton.INVISIBLE);
             }
         });
-
         m_videoView = (VideoView) findViewById(R.id.videoView);
 
         // Example of a call to a native method
