@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.projection.MediaProjection;
 import android.media.session.MediaController;
 import android.net.Uri;
 import android.os.Bundle;
@@ -32,10 +33,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Button m_connectButton;
     private Button m_castButton;
-    private Button m_playButton;
-    private Recorder m_recorder;
     private Server m_server;
-    private VideoView m_videoView;
 
     private static final String STATE_RESULT_CODE = "result_code";
     private static final String STATE_RESULT_DATA = "result_data";
@@ -44,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private Intent m_resultData;
 
     private MediaProjectionManager m_mediaProjectMgr;
+    private MediaProjection m_mediaProjection;
 
     //Activity Override
     @Override
@@ -100,23 +99,8 @@ public class MainActivity extends AppCompatActivity {
         m_castButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setupCasting();
-                m_server.startCasting();
             }
         });
-
-        m_playButton = (Button) findViewById(R.id.play);
-        m_playButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("Lulu", "startplay");
-                java.io.File video = new java.io.File(Environment.getExternalStorageDirectory() + "/video.mp4");
-                m_videoView.setVideoPath(video.getAbsolutePath());
-                m_videoView.start();
-            }
-        });
-
-        m_videoView = (VideoView) findViewById(videoView);
 
         // Example of a call to a native method
         TextView tv = (TextView) findViewById(R.id.sample_text);
@@ -132,23 +116,6 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(m_mediaProjectMgr.createScreenCaptureIntent(), REQUEST_MEDIA_PROJECTION);
     }
 
-    public void setupCasting()
-    {
-        m_server.setRecorder(m_recorder);
-        if(m_recorder != null)
-        {
-            if(m_recorder.isRecording())
-            {
-                m_recorder.releaseEncoders();
-            }
-            else
-            {
-                m_recorder.startRecording();
-            }
-        }
-
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_MEDIA_PROJECTION) {
@@ -160,8 +127,7 @@ public class MainActivity extends AppCompatActivity {
             m_resultCode = resultCode;
             m_resultData = data;
 
-            m_recorder = new Recorder(this, m_mediaProjectMgr.getMediaProjection(m_resultCode, m_resultData));
-            m_recorder.setServer(m_server);
+            m_mediaProjection = m_mediaProjectMgr.getMediaProjection(m_resultCode, m_resultData);
         }
     }
 
