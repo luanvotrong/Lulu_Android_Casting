@@ -105,24 +105,18 @@ public class H264Stream extends VideoStream {
 	 * and determines the pps and sps. Should not be called by the UI thread.
 	 **/
 	private MP4Config testH264() throws IllegalStateException, IOException {
-		if (mMode != MODE_MEDIARECORDER_API) return testMediaCodecAPI();
-		else return testMediaRecorderAPI();
+		return testMediaCodecAPI();
 	}
 
 	@SuppressLint("NewApi")
 	private MP4Config testMediaCodecAPI() throws RuntimeException, IOException {
 		try {
-			if (mQuality.resX>=640) {
-				// Using the MediaCodec API with the buffer method for high resolutions is too slow
-				mMode = MODE_MEDIARECORDER_API;
-			}
 			EncoderDebugger debugger = EncoderDebugger.debug(mSettings, mQuality.resX, mQuality.resY);
 			return new MP4Config(debugger.getB64SPS(), debugger.getB64PPS());
 		} catch (Exception e) {
 			// Fallback on the old streaming method using the MediaRecorder API
 			Log.e(TAG,"Resolution not supported with the MediaCodec API, we fallback on the old streamign method.");
-			mMode = MODE_MEDIARECORDER_API;
-			return testH264();
+			return null;
 		}
 	}
 
@@ -170,7 +164,7 @@ public class H264Stream extends VideoStream {
 			mMediaRecorder.setVideoEncodingBitRate((int)(mRequestedQuality.bitrate*0.8));
 			mMediaRecorder.setOutputFile(TESTFILE);
 			mMediaRecorder.setMaxDuration(3000);
-			
+
 			// We wait a little and stop recording
 			mMediaRecorder.setOnInfoListener(new MediaRecorder.OnInfoListener() {
 				public void onInfo(MediaRecorder mr, int what, int extra) {
