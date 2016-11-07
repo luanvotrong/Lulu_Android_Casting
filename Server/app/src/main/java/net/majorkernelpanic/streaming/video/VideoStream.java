@@ -236,10 +236,6 @@ public abstract class VideoStream extends MediaStream {
         Log.d(TAG, "Video encoded using the MediaCodec API with a buffer");
 
 
-        // Estimates the frame rate of the camera
-        measureFramerate();
-
-
         EncoderDebugger debugger = EncoderDebugger.debug(mSettings, mQuality.resX, mQuality.resY);
         final NV21Convertor convertor = debugger.getNV21Convertor();
 
@@ -269,8 +265,6 @@ public abstract class VideoStream extends MediaStream {
 
         Log.d(TAG, "Video encoded using the MediaCodec API with a surface");
 
-        // Estimates the frame rate of the camera
-        measureFramerate();
 
         EncoderDebugger debugger = EncoderDebugger.debug(mSettings, mQuality.resX, mQuality.resY);
 

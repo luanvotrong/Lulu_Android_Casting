@@ -31,11 +31,13 @@ import net.majorkernelpanic.streaming.video.VideoStream;
 import android.annotation.SuppressLint;
 import android.media.MediaCodec;
 import android.media.MediaRecorder;
+import android.media.projection.MediaProjection;
 import android.net.LocalServerSocket;
 import android.net.LocalSocket;
 import android.net.LocalSocketAddress;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.util.Log;
 
 /**
@@ -95,6 +97,7 @@ public abstract class MediaStream implements Stream {
 
 	protected MediaRecorder mMediaRecorder;
 	protected MediaCodec mMediaCodec;
+	protected MediaProjection mMediaProjection;
 	
 	static {
 		// We determine whether or not the MediaCodec API should be used
@@ -177,6 +180,13 @@ public abstract class MediaStream implements Stream {
 	 */
 	public void setTimeToLive(int ttl) throws IOException {
 		mTTL = ttl;
+	}
+
+	/**
+	 * Sets media projection.
+	 */
+	public void setMediaProjection(MediaProjection mediaProjection) {
+		mMediaProjection = mediaProjection;
 	}
 
 	/** 

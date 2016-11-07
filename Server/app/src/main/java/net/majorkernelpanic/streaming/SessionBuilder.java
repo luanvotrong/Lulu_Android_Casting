@@ -138,6 +138,7 @@ public class SessionBuilder {
 		if (session.getVideoTrack()!=null) {
 			VideoStream video = session.getVideoTrack();
 			video.setVideoQuality(mVideoQuality);
+			video.setMediaProjection(mMediaProjection);
 			video.setDestinationPorts(5006);
 		}
 
