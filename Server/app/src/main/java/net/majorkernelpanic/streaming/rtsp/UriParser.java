@@ -91,25 +91,9 @@ public class UriParser {
             for(String paramName: paramKeys) {
                 String paramValue = params.getAsString(paramName);
 
-				// FLASH ON/OFF
-				if (paramName.equalsIgnoreCase("flash")) {
-					if (paramValue.equalsIgnoreCase("on")) 
-						builder.setFlashEnabled(true);
-					else 
-						builder.setFlashEnabled(false);
-				}
-
-				// CAMERA -> the client can choose between the front facing camera and the back facing camera
-				else if (paramName.equalsIgnoreCase("camera")) {
-					if (paramValue.equalsIgnoreCase("back")) 
-						builder.setCamera(CameraInfo.CAMERA_FACING_BACK);
-					else if (paramValue.equalsIgnoreCase("front")) 
-						builder.setCamera(CameraInfo.CAMERA_FACING_FRONT);
-				}
-
 				// MULTICAST -> the stream will be sent to a multicast group
 				// The default mutlicast address is 228.5.6.7, but the client can specify another
-				else if (paramName.equalsIgnoreCase("multicast")) {
+				if (paramName.equalsIgnoreCase("multicast")) {
 					if (paramValue!=null) {
 						try {
 							InetAddress addr = InetAddress.getByName(paramValue);

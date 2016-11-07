@@ -128,6 +128,7 @@ public class MainActivity extends AppCompatActivity implements Session.Callback 
                     .setAudioQuality(new AudioQuality(16000, 32000))
                     .setVideoEncoder(SessionBuilder.VIDEO_H264)
                     .setVideoQuality(new VideoQuality(320, 240, 20, 500000))
+                    .setMediaProjection(m_mediaProjection)
                     .build();
         }
     }
