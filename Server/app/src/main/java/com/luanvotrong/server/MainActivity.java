@@ -5,10 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.projection.MediaProjection;
-import android.media.session.MediaController;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -23,16 +20,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import android.media.projection.MediaProjectionManager;
-import android.widget.VideoView;
 
-import com.luanvotrong.recorder.Recorder;
+import net.majorkernelpanic.streaming.Session;
+import net.majorkernelpanic.streaming.SessionBuilder;
+import net.majorkernelpanic.streaming.audio.AudioQuality;
+import net.majorkernelpanic.streaming.video.VideoQuality;
 
-import static com.luanvotrong.server.R.id.videoView;
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Session.Callback {
+    private String TAG = "Lulu MainActivity";
 
     private Button m_connectButton;
-    private Button m_castButton;
     private Server m_server;
 
     private static final String STATE_RESULT_CODE = "result_code";
@@ -43,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
 
     private MediaProjectionManager m_mediaProjectMgr;
     private MediaProjection m_mediaProjection;
+
+    private Session m_session;
 
     //Activity Override
     @Override
@@ -95,13 +94,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        m_castButton = (Button) findViewById(R.id.cast);
-        m_castButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            }
-        });
-
         // Example of a call to a native method
         TextView tv = (TextView) findViewById(R.id.sample_text);
         tv.setText(stringFromJNI());
@@ -128,6 +120,15 @@ public class MainActivity extends AppCompatActivity {
             m_resultData = data;
 
             m_mediaProjection = m_mediaProjectMgr.getMediaProjection(m_resultCode, m_resultData);
+            //Init streaming session after got media projectino
+            m_session = SessionBuilder.getInstance()
+                    .setCallback(this)
+                    .setContext(this)
+                    .setAudioEncoder(SessionBuilder.AUDIO_NONE)
+                    .setAudioQuality(new AudioQuality(16000, 32000))
+                    .setVideoEncoder(SessionBuilder.VIDEO_H264)
+                    .setVideoQuality(new VideoQuality(320, 240, 20, 500000))
+                    .build();
         }
     }
 
@@ -160,6 +161,48 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Session callbacks
+     */
+    @Override
+    public void onBitrateUpdate(long bitrate) {
+        Log.d(TAG,"Bitrate: "+bitrate);
+    }
+
+    @Override
+    public void onSessionError(int message, int streamType, Exception e) {
+        if (e != null) {
+            Log.d(TAG, e.getMessage());
+        }
+    }
+
+    @Override
+
+    public void onPreviewStarted() {
+        Log.d(TAG,"Preview started.");
+    }
+
+    @Override
+    public void onSessionConfigured() {
+        Log.d(TAG,"Preview configured.");
+        // Once the stream is configured, you can get a SDP formated session description
+        // that you can send to the receiver of the stream.
+        // For example, to receive the stream in VLC, store the session description in a .sdp file
+        // and open it with VLC while streming.
+        Log.d(TAG, m_session.getSessionDescription());
+        m_session.start();
+    }
+
+    @Override
+    public void onSessionStarted() {
+        Log.d(TAG,"Session started.");
+    }
+
+    @Override
+    public void onSessionStopped() {
+        Log.d(TAG,"Session stopped.");
+    }
+
+    /**
      * A native method that is implemented by the 'native-lib' native library,
      * which is packaged with this application.
      */
@@ -170,38 +213,3 @@ public class MainActivity extends AppCompatActivity {
         System.loadLibrary("native-lib");
     }
 }
-
-
-
-
-    /*
-    public void onCapture() {
-        Bitmap bm = m_screenView.getDrawingCache();
-
-        String path = Environment.getExternalStorageDirectory() + "/capture.png";
-        Log.v("Lulu", "path: " + path);
-
-        long begin_time = System.nanoTime();
-        java.io.File image = new java.io.File(Environment.getExternalStorageDirectory() + "/capture.png");
-        if (image.exists()) {
-            image.delete();
-        }
-
-        try {
-            FileOutputStream out = new FileOutputStream(image);
-            bm.compress(Bitmap.CompressFormat.PNG, 100, out);
-            out.flush();
-            out.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        long end_time = System.nanoTime();
-        long deltaTime = (end_time - begin_time) / 1000000;
-
-        Log.v("Lulu", "deltatime: " + deltaTime);
-    }
-
-    public Bitmap getCapture() {
-        return m_screenView.getDrawingCache();
-    }
-    */
