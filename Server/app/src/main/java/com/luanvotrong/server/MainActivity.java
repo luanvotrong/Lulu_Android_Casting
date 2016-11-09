@@ -5,9 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.projection.MediaProjection;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.text.format.Formatter;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.Button;
@@ -25,7 +29,17 @@ import android.media.projection.MediaProjectionManager;
 import net.majorkernelpanic.streaming.Session;
 import net.majorkernelpanic.streaming.SessionBuilder;
 import net.majorkernelpanic.streaming.audio.AudioQuality;
+import net.majorkernelpanic.streaming.rtsp.RtspServer;
 import net.majorkernelpanic.streaming.video.VideoQuality;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.math.BigInteger;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.nio.ByteOrder;
 
 public class MainActivity extends AppCompatActivity implements Session.Callback {
     private String TAG = "Lulu MainActivity";
@@ -46,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements Session.Callback 
     private MediaProjection m_mediaProjection;
 
     private Session m_session;
+    private RtspServer m_rtspServer;
 
     //Activity Override
     @Override
@@ -129,20 +144,49 @@ public class MainActivity extends AppCompatActivity implements Session.Callback 
             m_pxDensity = metrics.densityDpi;
             Log.d("Lulu", m_screenW + " " + m_screenH + " " + m_pxDensity);
 
-
             m_mediaProjection = m_mediaProjectMgr.getMediaProjection(m_resultCode, m_resultData);
             //Init streaming session after got media projectino
-            m_session = SessionBuilder.getInstance()
+            SessionBuilder.getInstance()
                     .setCallback(this)
                     .setContext(this)
                     .setAudioEncoder(SessionBuilder.AUDIO_NONE)
                     .setAudioQuality(new AudioQuality(16000, 32000))
                     .setVideoEncoder(SessionBuilder.VIDEO_H264)
                     .setVideoQuality(new VideoQuality(m_screenW/4, m_screenH/4, 20, 500000))
-                    .setMediaProjection(m_mediaProjection)
-                    .build();
-            m_session.configure();
+                    .setMediaProjection(m_mediaProjection);
+            //m_session.configure();
+
+            // Starts the RTSP server
+            this.startService(new Intent(this, RtspServer.class));
         }
+    }
+
+    public MediaProjection getMediaProjection()
+    {
+        return m_mediaProjection;
+    }
+
+    private String wifiIpAddress(Context context) {
+        WifiManager wifiManager = (WifiManager) context.getSystemService(WIFI_SERVICE);
+        int ipAddress = wifiManager.getConnectionInfo().getIpAddress();
+
+        // Convert little-endian to big-endianif needed
+        if (ByteOrder.nativeOrder().equals(ByteOrder.LITTLE_ENDIAN)) {
+            ipAddress = Integer.reverseBytes(ipAddress);
+        }
+
+        byte[] ipByteArray = BigInteger.valueOf(ipAddress).toByteArray();
+
+        String ipAddressString;
+        try {
+            ipAddressString = InetAddress.getByAddress(ipByteArray).getHostAddress();
+        } catch (UnknownHostException ex) {
+            Log.e("WIFIIP", "Unable to get host address.");
+            ipAddressString = null;
+        }
+
+        Log.e(TAG, "IP: " + ipAddressString);
+        return ipAddressString;
     }
 
     @Override
@@ -200,9 +244,7 @@ public class MainActivity extends AppCompatActivity implements Session.Callback 
         // Once the stream is configured, you can get a SDP formated session description
         // that you can send to the receiver of the stream.
         // For example, to receive the stream in VLC, store the session description in a .sdp file
-        // and open it with VLC while streming.
-        Log.d(TAG, m_session.getSessionDescription());
-        m_session.start();
+        // and open it with VLC while streming
     }
 
     @Override

@@ -221,7 +221,7 @@ public class SessionBuilder {
 	}
 
 	public SessionBuilder setMediaProjection(MediaProjection mediaProjection) {
-		mediaProjection = mMediaProjection;
+		mMediaProjection = mediaProjection;
 		return this;
 	}
 
