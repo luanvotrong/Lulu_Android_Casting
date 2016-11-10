@@ -71,7 +71,7 @@ public class UriParser {
 		builder.setAudioEncoder(SessionBuilder.AUDIO_NONE)
 				.setAudioQuality(new AudioQuality(16000, 32000))
 				.setVideoEncoder(SessionBuilder.VIDEO_H264)
-				.setVideoQuality(new VideoQuality(320, 480, 20, 500000));
+				.setVideoQuality(new VideoQuality(480, 800, 20, 500000));
 		Session session = builder.build();
 		
 		if (videoApi>0 && session.getVideoTrack() != null) {

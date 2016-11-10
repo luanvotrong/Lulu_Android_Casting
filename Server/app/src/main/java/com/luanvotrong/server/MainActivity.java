@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements Session.Callback 
 
             m_screenW = getWindow().getDecorView().getWidth();
             m_screenH = getWindow().getDecorView().getHeight();
-            android.util.DisplayMetrics metrics = new android.util.DisplayMetrics();
+            android.util.DisplayMetrics metrics = getResources().getDisplayMetrics();
             m_pxDensity = metrics.densityDpi;
             Log.d("Lulu", m_screenW + " " + m_screenH + " " + m_pxDensity);
 
@@ -153,6 +153,7 @@ public class MainActivity extends AppCompatActivity implements Session.Callback 
                     .setAudioQuality(new AudioQuality(16000, 32000))
                     .setVideoEncoder(SessionBuilder.VIDEO_H264)
                     .setVideoQuality(new VideoQuality(m_screenW/4, m_screenH/4, 20, 500000))
+                    .setScreenConfiguration(m_screenW, m_screenH, m_pxDensity)
                     .setMediaProjection(m_mediaProjection);
             //m_session.configure();
 
