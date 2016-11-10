@@ -55,48 +55,18 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                int w = getWindow().getDecorView().getWidth();
+                int h = getWindow().getDecorView().getHeight();
+                Log.d("Lulu", w + " " + h + " ");
             }
         });
 
-//        m_client = new Client();
-//        m_client.init(this);
-//        m_listeningButton = (Button) findViewById(R.id.listen);
-//        m_listeningButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                m_client.setState(Client.CONNECTION_STATE.LISTENING);
-//                //onDraw();
-//                m_listeningButton.setVisibility(Button.INVISIBLE);
-//                fab.setVisibility(FloatingActionButton.INVISIBLE);
-//            }
-//        });
-        String sdp = "v=0\n" +
-                "o=- 0 0 IN IP4 null\n" +
-                "s=Unnamed\n" +
-                "i=N/A\n" +
-                "c=IN IP4 10.218.234.46\n" +
-                "t=0 0\n" +
-                "a=recvonly\n" +
-                "m=video 5006 RTP/AVP 96\n" +
-                "a=rtpmap:96 H264/90000\n" +
-                "a=fmtp:96 packetization-mode=1;profile-level-id=42c029;sprop-parameter-sets=Z0LAKY1oEQ9a4B4RCNQ=,aM4BqDXI;\n" +
-                "a=control:trackID=1\n";
-
-        File sdpFile = new File(Environment.getExternalStorageDirectory(), "stream.sdp");
-        try {
-            FileOutputStream stream = new FileOutputStream(sdpFile);
-            try {
-                stream.write(sdp
-                        .getBytes());
-            } catch (Exception e) {
-                stream.close();
-            }
-        } catch (Exception e)
-        {
-        }
+        int w = getWindow().getDecorView().getWidth();
+        int h = getWindow().getDecorView().getHeight();
+        Log.d("Lulu", w + " " + h + " ");
 
         m_videoView = (VideoView) findViewById(R.id.videoView);
-        Uri uri = Uri.parse("rtsp://" + Environment.getExternalStorageDirectory() + "stream.sdp");
+        Uri uri = Uri.parse("rtsp://192.168.43.116:8086");
         m_videoView.setVideoURI(uri);
         m_videoView.start();
 
@@ -169,9 +139,6 @@ public class MainActivity extends AppCompatActivity {
      * which is packaged with this application.
      */
     public native String stringFromJNI();
-
-    public void onDraw(Bitmap bm) {
-    }
 
     // Used to load the 'native-lib' library on application startup.
     static {
