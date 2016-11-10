@@ -56,6 +56,7 @@ import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
+import android.view.WindowManager;
 
 /**
  * Don't use this class directly.
@@ -278,7 +279,7 @@ public abstract class VideoStream extends MediaStream {
         mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
         mMediaCodec.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
 
-        mVirtualDisplay = mMediaProjection.createVirtualDisplay("ScreenRecord", m_screenW, m_screenH, m_pxDensity, DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mMediaCodec.createInputSurface(), null, null);
+        mVirtualDisplay = mMediaProjection.createVirtualDisplay("ScreenRecord", 720, 340, 16, DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mMediaCodec.createInputSurface(), null, null);
 
         mMediaCodec.start();
 
