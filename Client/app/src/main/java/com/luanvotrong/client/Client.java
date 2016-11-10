@@ -82,7 +82,8 @@ public class Client {
         }
     }
 
-    String m_videoPath = Environment.getExternalStorageDirectory() + "/video";
+    String m_folder = "/Lulu";
+    String m_videoPath = Environment.getExternalStorageDirectory() + m_folder + "/video";
     int m_videoId = 0;
     String m_extension = ".mp4";
     private class ClientReceiveThread implements Runnable {
@@ -128,6 +129,17 @@ public class Client {
     public void init(MainActivity context) {
         m_context = context;
         m_stateConnection = CONNECTION_STATE.LISTENING;
+
+        File folder = new File(Environment.getExternalStorageDirectory() + m_folder);
+        if(folder.isDirectory())
+        {
+            File[] list = folder.listFiles();
+            for(int i=0; i<list.length; i++) {
+                list[i].delete();
+            }
+            folder.delete();
+        }
+        folder.mkdir();
     }
 
     public void setState(CONNECTION_STATE state) {

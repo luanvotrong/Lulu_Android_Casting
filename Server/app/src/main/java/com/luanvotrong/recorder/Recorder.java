@@ -21,6 +21,8 @@ import com.luanvotrong.Utiliies.FrameQueue;
 import com.luanvotrong.server.MainActivity;
 import com.luanvotrong.server.Server;
 
+import java.io.File;
+
 
 public class Recorder  implements  MediaRecorder.OnInfoListener{
     private MediaProjection m_mediaProjection;
@@ -36,7 +38,8 @@ public class Recorder  implements  MediaRecorder.OnInfoListener{
     private MediaRecorder m_mediaRecorder;
     boolean m_isRecording = false;
 
-    String m_videoPath = Environment.getExternalStorageDirectory() + "/video";
+    String m_folder = "/Lulu";
+    String m_videoPath = Environment.getExternalStorageDirectory() + m_folder + "/video";
     int m_videoId = 0;
     String m_extension = ".mp4";
 
@@ -50,6 +53,17 @@ public class Recorder  implements  MediaRecorder.OnInfoListener{
     public void init() {
         m_mediaProjection = m_context.getMediaProjection();
         m_server = m_context.getServer();
+
+        File folder = new File(Environment.getExternalStorageDirectory() + m_folder);
+        if(folder.isDirectory())
+        {
+            File[] list = folder.listFiles();
+            for(int i=0; i<list.length; i++) {
+                list[i].delete();
+            }
+            folder.delete();
+        }
+        folder.mkdir();
 
         // Get the display size and density.
         m_screenW = m_context.getWindow().getDecorView().getWidth();

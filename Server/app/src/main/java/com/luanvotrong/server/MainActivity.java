@@ -4,10 +4,12 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.projection.MediaProjection;
 import android.media.session.MediaController;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.speech.RecognizerResultsIntent;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -44,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private Intent m_resultData;
 
     private MediaProjectionManager m_mediaProjectMgr;
+    private MediaProjection m_mediaProjection;
 
     //Activity Override
     @Override
@@ -85,8 +88,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        m_server = new Server();
-        m_server.init(this);
+        m_server = new Server(this);
+        m_recorder = new Recorder(this);
 
         m_connectButton = (Button) findViewById(R.id.connect);
         m_connectButton.setOnClickListener(new View.OnClickListener() {
@@ -134,7 +137,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void setupCasting()
     {
-        m_server.setRecorder(m_recorder);
         if(m_recorder != null)
         {
             if(m_recorder.isRecording())
@@ -160,8 +162,10 @@ public class MainActivity extends AppCompatActivity {
             m_resultCode = resultCode;
             m_resultData = data;
 
-            m_recorder = new Recorder(this, m_mediaProjectMgr.getMediaProjection(m_resultCode, m_resultData));
-            m_recorder.setServer(m_server);
+            m_mediaProjection = m_mediaProjectMgr.getMediaProjection(m_resultCode, m_resultData);
+
+            m_server.init();
+            m_recorder.init();
         }
     }
 
@@ -191,6 +195,18 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public Server getServer() {
+        return m_server;
+    }
+
+    public Recorder getRecorder() {
+        return m_recorder;
+    }
+
+    public MediaProjection getMediaProjection() {
+        return m_mediaProjection;
     }
 
     /**

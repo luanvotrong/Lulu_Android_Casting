@@ -34,7 +34,8 @@ public class MainActivity extends AppCompatActivity {
     private Client m_client = null;
     private Button m_listeningButton;
     private VideoView m_videoView;
-    String m_videoPath = Environment.getExternalStorageDirectory() + "/video";
+    String m_folder = "/Lulu";
+    String m_videoPath = Environment.getExternalStorageDirectory() + m_folder + "/video";
     int m_videoId = 0;
     String m_extension = ".mp4";
 
