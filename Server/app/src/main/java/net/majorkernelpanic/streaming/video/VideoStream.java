@@ -272,14 +272,14 @@ public abstract class VideoStream extends MediaStream {
         EncoderDebugger debugger = EncoderDebugger.debug(mSettings, mQuality.resX, mQuality.resY);
 
         mMediaCodec = MediaCodec.createByCodecName(debugger.getEncoderName());
-        MediaFormat mediaFormat = MediaFormat.createVideoFormat("video/avc", m_screenW, m_screenH);
+        MediaFormat mediaFormat = MediaFormat.createVideoFormat("video/avc", mQuality.resX, mQuality.resY);
         mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, mQuality.bitrate);
         mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, mQuality.framerate);
         mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
         mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
         mMediaCodec.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
 
-        mVirtualDisplay = mMediaProjection.createVirtualDisplay("ScreenRecord", m_screenW, m_screenH, m_pxDensity, DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mMediaCodec.createInputSurface(), null, null);
+        mVirtualDisplay = mMediaProjection.createVirtualDisplay("ScreenRecord", mQuality.resX, mQuality.resY, m_pxDensity, DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mMediaCodec.createInputSurface(), null, null);
 
         mMediaCodec.start();
 
