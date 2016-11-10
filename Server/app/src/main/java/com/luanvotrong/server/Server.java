@@ -105,14 +105,14 @@ public class Server {
     private Broadcaster m_broadReceiver;
     private Thread m_serverThread;
 
-    public void init(MainActivity context) {
+    Server(MainActivity context) {
+        m_context = context;
         m_broadReceiver = null;
         m_serverThread = null;
-        m_context = context;
     }
 
-    public void setRecorder(Recorder recorder) {
-        m_recorder = recorder;
+    public void init() {
+        m_recorder = m_context.getRecorder();
     }
 
     public void setState(CONNECTION_STATE state) {

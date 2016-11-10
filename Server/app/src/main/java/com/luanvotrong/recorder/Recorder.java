@@ -18,6 +18,7 @@ import android.view.Display;
 import android.view.Surface;
 
 import com.luanvotrong.Utiliies.FrameQueue;
+import com.luanvotrong.server.MainActivity;
 import com.luanvotrong.server.Server;
 
 
@@ -30,7 +31,7 @@ public class Recorder  implements  MediaRecorder.OnInfoListener{
     private int m_screenW;
     private int m_pxDensity;
 
-    Activity m_context;
+    MainActivity m_context;
 
     private MediaRecorder m_mediaRecorder;
     boolean m_isRecording = false;
@@ -42,13 +43,21 @@ public class Recorder  implements  MediaRecorder.OnInfoListener{
     //Video handling
     Server m_server;
 
-    public Recorder(Activity context, MediaProjection mediaProjection) {
+    public Recorder(MainActivity context) {
         m_context = context;
-        m_mediaProjection = mediaProjection;
     }
 
-    public void setServer(Server server) {
-        m_server = server;
+    public void init() {
+        m_mediaProjection = m_context.getMediaProjection();
+        m_server = m_context.getServer();
+
+        // Get the display size and density.
+        m_screenW = m_context.getWindow().getDecorView().getWidth();
+        m_screenH = m_context.getWindow().getDecorView().getHeight();
+        android.util.DisplayMetrics metrics = new android.util.DisplayMetrics();
+        Log.d("Lulu", m_screenW + " " + m_screenH + " ");
+        m_context.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        m_pxDensity = metrics.densityDpi;
     }
 
     public boolean isRecording() {
@@ -60,14 +69,6 @@ public class Recorder  implements  MediaRecorder.OnInfoListener{
 
         //Prepare File
         m_videoId++;
-
-        // Get the display size and density.
-        m_screenW = m_context.getWindow().getDecorView().getWidth();
-        m_screenH = m_context.getWindow().getDecorView().getHeight();
-        android.util.DisplayMetrics metrics = new android.util.DisplayMetrics();
-        Log.d("Lulu", m_screenW + " " + m_screenH + " ");
-        m_context.getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        m_pxDensity = metrics.densityDpi;
 
         DisplayManager dm = (DisplayManager) m_context.getSystemService(Context.DISPLAY_SERVICE);
         Display defaultDisplay = dm.getDisplay(Display.DEFAULT_DISPLAY);
@@ -103,7 +104,6 @@ public class Recorder  implements  MediaRecorder.OnInfoListener{
                 null /* callback */, null /* handler */);
 
         m_mediaRecorder.start();
-
     }
 
     public void releaseEncoders() {
