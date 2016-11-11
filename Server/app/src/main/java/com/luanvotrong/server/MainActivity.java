@@ -145,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements Session.Callback 
             Log.d("Lulu", m_screenW + " " + m_screenH + " " + m_pxDensity);
 
             m_mediaProjection = m_mediaProjectMgr.getMediaProjection(m_resultCode, m_resultData);
-            //Init streaming session after got media projectino
+            //Init streaming session after got media projection
             SessionBuilder.getInstance()
                     .setCallback(this)
                     .setContext(this)
